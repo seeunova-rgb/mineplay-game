@@ -1,0 +1,143 @@
+/* ─── RESET ─────────────────────────────────────────────────────── */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
+#canvas { display: block; width: 100vw; height: 100vh; }
+
+/* ─── HUD CONTAINER ─────────────────────────────────────────────── */
+#hud {
+  position: fixed; inset: 0; pointer-events: none;
+  color: #c8ff00;
+}
+
+/* ─── CROSSHAIR ─────────────────────────────────────────────────── */
+#crosshair {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px; height: 20px;
+}
+#crosshair::before, #crosshair::after {
+  content: ''; position: absolute; background: rgba(200,255,0,0.85);
+}
+#crosshair::before { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); }
+#crosshair::after  { width: 100%; height: 2px; top: 50%; transform: translateY(-50%); }
+.ch-dot {
+  position: absolute; top: 50%; left: 50%;
+  width: 3px; height: 3px;
+  background: #c8ff00;
+  transform: translate(-50%,-50%);
+  border-radius: 50%;
+}
+
+/* ─── BOTTOM BAR ────────────────────────────────────────────────── */
+#bottom-hud {
+  position: absolute; bottom: 28px; left: 0; right: 0;
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 0 36px;
+}
+.hud-block { display: flex; flex-direction: column; gap: 2px; }
+.hud-label { font-size: 9px; letter-spacing: 3px; opacity: 0.5; text-transform: uppercase; }
+.hud-value { font-size: 26px; font-weight: 700; letter-spacing: 1px; line-height: 1; }
+.hud-value.hp    { color: #ff4444; }
+.hud-value.ammo  { color: #c8ff00; }
+.hud-value.kills { color: #44aaff; }
+.ammo-reserve { font-size: 14px; opacity: 0.5; margin-left: 4px; }
+
+/* ─── TOP-LEFT INFO ──────────────────────────────────────────────── */
+#top-left {
+  position: absolute; top: 20px; left: 28px;
+  font-size: 10px; letter-spacing: 2px; opacity: 0.45; line-height: 1.8;
+}
+
+/* ─── MINIMAP ───────────────────────────────────────────────────── */
+#minimap {
+  position: absolute; top: 20px; right: 28px;
+  width: 100px; height: 100px;
+  border: 1px solid rgba(200,255,0,0.25);
+  background: rgba(0,0,0,0.55);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 8px; letter-spacing: 2px; opacity: 0.4;
+}
+#minimap-dot {
+  position: absolute;
+  width: 5px; height: 5px;
+  background: #c8ff00;
+  border-radius: 50%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  transition: top .1s, left .1s;
+}
+
+/* ─── HIT MARKER ────────────────────────────────────────────────── */
+#hitmarker {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%) rotate(45deg);
+  width: 28px; height: 28px;
+  opacity: 0; transition: opacity .05s;
+}
+#hitmarker::before, #hitmarker::after {
+  content: ''; position: absolute; background: #ff4444;
+}
+#hitmarker::before { width: 2px; height: 100%; left: 50%; transform: translateX(-50%); }
+#hitmarker::after  { width: 100%; height: 2px; top: 50%; transform: translateY(-50%); }
+
+/* ─── DAMAGE VIGNETTE ───────────────────────────────────────────── */
+#damage-vignette {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(255,0,0,0) 100%);
+  opacity: 0; transition: opacity .1s;
+  pointer-events: none;
+}
+
+/* ─── SPRINT / STAMINA BAR ──────────────────────────────────────── */
+#sprint-bar-wrap {
+  position: absolute; bottom: 76px; left: 36px;
+  width: 120px;
+}
+.sb-label { font-size: 8px; letter-spacing: 3px; opacity: 0.4; margin-bottom: 3px; }
+#sprint-bar-bg {
+  width: 100%; height: 3px;
+  background: rgba(200,255,0,.15);
+  border-radius: 2px;
+}
+#sprint-bar {
+  height: 3px; width: 100%;
+  background: #c8ff00;
+  border-radius: 2px;
+  transition: width .1s, background .2s;
+}
+
+/* ─── WEAPON NAME FLASH ─────────────────────────────────────────── */
+#weapon-name {
+  position: absolute; bottom: 100px; right: 36px;
+  font-size: 11px; letter-spacing: 3px; opacity: 0;
+  transition: opacity .3s;
+}
+
+/* ─── LOCK / PAUSE SCREEN ───────────────────────────────────────── */
+#lockscreen {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.88);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 16px; z-index: 100;
+  color: #c8ff00;
+}
+#lockscreen h1 {
+  font-size: 48px; letter-spacing: 12px; font-weight: 900;
+  text-shadow: 0 0 40px rgba(200,255,0,0.4);
+}
+#lockscreen p {
+  font-size: 11px; letter-spacing: 4px; opacity: 0.5;
+}
+#lockscreen button {
+  margin-top: 12px;
+  padding: 12px 40px;
+  background: transparent;
+  border: 1px solid #c8ff00;
+  color: #c8ff00;
+  font-family: 'Courier New', monospace;
+  font-size: 13px; letter-spacing: 4px;
+  cursor: pointer;
+  transition: background .2s, color .2s;
+}
+#lockscreen button:hover { background: #c8ff00; color: #000; }
