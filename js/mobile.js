@@ -26,8 +26,9 @@ function initMobileControls() {
       width: 55%; height: 100%; z-index: 50; touch-action: none;
     }
     #mc-joystick-base {
-      position: fixed; width: min(110px, 26vw); height: min(110px, 26vw);
-      left: 10px; bottom: max(16px, env(safe-area-inset-bottom, 0px)); border-radius: 50%;
+      position: fixed; width: min(100px, 24vw); height: min(100px, 24vw);
+      left: 10px; bottom: max(16px, env(safe-area-inset-bottom, 0px));
+      border-radius: 50%;
       background: rgba(0,255,136,0.07);
       border: 1.5px solid rgba(0,255,136,0.25);
     }
@@ -53,15 +54,11 @@ function initMobileControls() {
       display: flex; align-items: center; justify-content: center;
       font-size: 22px; pointer-events: none;
     }
-    .mc-btn {
-      position: fixed !important; border-radius: 50% !important;
-      background: rgba(0,0,0,0.6) !important;
-      border: 1.5px solid rgba(0,255,136,0.5) !important;
-      color: #00ff88 !important;
-      display: flex !important; align-items: center !important;
-      justify-content: center !important; font-weight: 700 !important;
-      z-index: 62 !important; touch-action: none;
-      -webkit-tap-highlight-color: transparent;
+    /* Sprint toggle ON */
+    #mc-btn-sprint.active {
+      background: rgba(0,255,136,0.25) !important;
+      border-color: #00ff88 !important;
+      color: #fff !important;
     }
   `;
   document.head.appendChild(style);
@@ -83,84 +80,106 @@ function initMobileControls() {
   shootBase.innerHTML = `<div id="mc-shoot-knob">🔫</div>`;
   document.body.appendChild(shootBase);
 
-  // ── Other buttons ────────────────────────────────────────────
-  const BTN = [
-    { id:'mc-btn-jump',   icon:'↑',  size:50 },
-    { id:'mc-btn-crouch', icon:'↓',  size:44 },
-    { id:'mc-btn-sprint', icon:'⚡', size:44 },
-    { id:'mc-btn-reload', icon:'⟳',  size:44 },
+  // ── Buttons (jump/crouch/reload = right side, sprint = left side toggle) ──
+  const BTN_RIGHT = [
+    { id:'mc-btn-jump',   icon:'↑', size:42 },
+    { id:'mc-btn-crouch', icon:'↓', size:38 },
+    { id:'mc-btn-reload', icon:'⟳', size:38 },
   ];
-  BTN.forEach(({ id, icon, size }) => {
+  BTN_RIGHT.forEach(({ id, icon, size }) => {
     const btn = document.createElement('button');
     btn.id = id; btn.className = 'mc-btn';
     btn.textContent = icon;
-    btn.style.width = size + 'px'; btn.style.height = size + 'px';
-    btn.style.fontSize = (size * 0.35) + 'px';
+    btn.style.cssText = `
+      position: fixed; border-radius: 50%;
+      background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
+      color: #00ff88; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; z-index: 62; touch-action: none;
+      -webkit-tap-highlight-color: transparent; cursor: pointer;
+      width: ${size}px; height: ${size}px; font-size: ${Math.round(size*0.4)}px;
+    `;
     document.body.appendChild(btn);
   });
 
-  // ── Layout: จัด shoot joystick + ปุ่มให้ไม่ทับกัน ────────────
-  // shoot joystick = วงใหญ่ขวาล่าง
-  // ปุ่มอื่นเรียงด้านบนและซ้ายของ shoot
+  // Sprint — ฝั่งซ้าย, toggle on/off
+  const sprintBtn = document.createElement('button');
+  sprintBtn.id = 'mc-btn-sprint';
+  sprintBtn.textContent = '⚡';
+  sprintBtn.style.cssText = `
+    position: fixed; border-radius: 50%;
+    background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
+    color: #00ff88; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; z-index: 62; touch-action: none;
+    -webkit-tap-highlight-color: transparent; cursor: pointer;
+    width: 38px; height: 38px; font-size: 15px;
+  `;
+  document.body.appendChild(sprintBtn);
+
+  // ── Layout ───────────────────────────────────────────────────
   function placeButtons() {
     const W = window.innerWidth;
-    const H = window.innerHeight;
+    const scale = Math.min(1.15, Math.max(0.75, W / 420));
 
-    // Scale ปุ่มตามขนาดจอ: base ref = 400px wide, จำกัด scale 0.7–1.2
-    const scale = Math.min(1.2, Math.max(0.7, W / 420));
+    const SHOOT   = Math.round(95  * scale);
+    const J       = Math.round(42  * scale);   // jump
+    const S       = Math.round(38  * scale);   // small buttons
+    const PAD     = Math.round(12  * scale);
+    const GAP     = Math.round(7   * scale);
+    const BOT     = PAD;                        // ชิดล่าง
 
-    const SHOOT_SIZE = Math.round(110 * scale);
-    const BTN_L      = Math.round(50  * scale);  // jump (ใหญ่สุด)
-    const BTN_S      = Math.round(44  * scale);  // reload/crouch/sprint
-    const PAD        = Math.round(14  * scale);  // margin ขอบขวา/ล่าง
-    const GAP        = Math.round(8   * scale);  // ช่องว่างระหว่างปุ่ม
-
-    // safe area bottom (notch/home bar)
-    const safeBottom = parseInt(
-      getComputedStyle(document.documentElement)
-        .getPropertyValue('--sab') || '0'
-    ) || 0;
-
-    const ROW1_bottom = PAD + safeBottom;                      // แถวล่าง
-    const ROW2_bottom = ROW1_bottom + BTN_S + GAP;             // แถวบน
-    const SHOOT_right = PAD;
-    const SMALL_right = SHOOT_right + SHOOT_SIZE + GAP;        // คอลัมน์ซ้ายของ shoot
-    const WIDE_right  = SMALL_right + BTN_S + GAP;             // คอลัมน์ที่ 3
-
+    // ── ขวา: shoot joystick ──────────────────────────────────
     shootBase.style.cssText = `
-      position: fixed; right: ${SHOOT_right}px; bottom: ${ROW1_bottom}px;
-      width: ${SHOOT_SIZE}px; height: ${SHOOT_SIZE}px; border-radius: 50%;
+      position: fixed; right: ${PAD}px; bottom: ${BOT}px;
+      width: ${SHOOT}px; height: ${SHOOT}px; border-radius: 50%;
       background: rgba(255,80,80,0.08);
       border: 1.5px solid rgba(255,80,80,0.35);
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    const btnLayout = [
-      { id:'mc-btn-reload', s: BTN_S, right: SHOOT_right, bottom: ROW2_bottom },
-      { id:'mc-btn-jump',   s: BTN_L, right: SMALL_right, bottom: ROW2_bottom },
-      { id:'mc-btn-sprint', s: BTN_S, right: SMALL_right, bottom: ROW1_bottom },
-      { id:'mc-btn-crouch', s: BTN_S, right: WIDE_right,  bottom: ROW1_bottom },
-    ];
+    // reload — เหนือ shoot
+    const reloadBottom = BOT + SHOOT + GAP;
+    const reloadRight  = PAD + (SHOOT - S) / 2;
+    applyBtn('mc-btn-reload', S, reloadRight, reloadBottom);
 
-    btnLayout.forEach(({ id, s, right, bottom }) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.style.cssText = `
-        position: fixed; right: ${right}px; bottom: ${bottom}px;
-        left: auto; top: auto; width: ${s}px; height: ${s}px;
-        font-size: ${Math.round(s * 0.38)}px; border-radius: 50%;
-        background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
-        color: #00ff88; display: flex; align-items: center; justify-content: center;
-        font-weight: 700; z-index: 62; touch-action: none;
-        -webkit-tap-highlight-color: transparent; cursor: pointer;
-      `;
-    });
+    // jump — ซ้ายของ shoot แถวบน
+    const jumpRight  = PAD + SHOOT + GAP;
+    const jumpBottom = BOT + SHOOT - J;
+    applyBtn('mc-btn-jump', J, jumpRight, jumpBottom);
+
+    // crouch — ซ้ายของ shoot แถวล่าง (ไม่ทับ HUD)
+    const crouchRight  = PAD + SHOOT + GAP + J + GAP;
+    const crouchBottom = BOT;
+    applyBtn('mc-btn-crouch', S, crouchRight, crouchBottom);
+
+    // ── ซ้าย: sprint toggle (เหนือ joystick) ────────────────
+    const joySize = Math.min(100, Math.round(W * 0.24));
+    const sprintLeft   = 10 + (joySize - S) / 2;
+    const sprintBottom = BOT + joySize + GAP;
+    sprintBtn.style.cssText = `
+      position: fixed; left: ${Math.round(sprintLeft)}px; bottom: ${Math.round(sprintBottom)}px;
+      width: ${S}px; height: ${S}px; font-size: ${Math.round(S*0.4)}px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
+      color: #00ff88; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; z-index: 62; touch-action: none;
+      -webkit-tap-highlight-color: transparent; cursor: pointer;
+    `;
   }
 
-  // inject CSS var สำหรับ safe-area-inset-bottom
-  const sabStyle = document.createElement('style');
-  sabStyle.textContent = `:root { --sab: env(safe-area-inset-bottom, 0px); }`;
-  document.head.appendChild(sabStyle);
+  function applyBtn(id, size, right, bottom) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.cssText = `
+      position: fixed; right: ${Math.round(right)}px; bottom: ${Math.round(bottom)}px;
+      left: auto; top: auto;
+      width: ${size}px; height: ${size}px; font-size: ${Math.round(size*0.4)}px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
+      color: #00ff88; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; z-index: 62; touch-action: none;
+      -webkit-tap-highlight-color: transparent; cursor: pointer;
+    `;
+  }
 
   placeButtons();
   window.addEventListener('resize', placeButtons);
@@ -169,7 +188,7 @@ function initMobileControls() {
   // ── Move joystick logic ──────────────────────────────────────
   const base = document.getElementById('mc-joystick-base');
   const knob = document.getElementById('mc-joystick-knob');
-  const R = 44;
+  const R = 40;
   let joyId = null, ox = 0, oy = 0;
 
   joyZone.addEventListener('touchstart', e => {
@@ -210,7 +229,7 @@ function initMobileControls() {
 
   // ── Shoot joystick logic ─────────────────────────────────────
   const shootKnob = document.getElementById('mc-shoot-knob');
-  const SR = 44;
+  const SR = 40;
   const SENS = 0.005;
   let shootId = null, prevSx = null, prevSy = null;
   let shootTimer = null;
@@ -230,9 +249,7 @@ function initMobileControls() {
     shootId = t.identifier;
     prevSx = t.clientX; prevSy = t.clientY;
     const rect = shootBase.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top  + rect.height / 2;
-    moveShootKnob(t.clientX - cx, t.clientY - cy);
+    moveShootKnob(t.clientX - rect.left - rect.width/2, t.clientY - rect.top - rect.height/2);
     startShooting();
   }, { passive: false });
 
@@ -240,45 +257,34 @@ function initMobileControls() {
     e.preventDefault();
     const t = [...e.changedTouches].find(t => t.identifier === shootId);
     if (!t) return;
-    // หัน
     yaw   -= (t.clientX - prevSx) * SENS;
     pitch -= (t.clientY - prevSy) * SENS;
     pitch  = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
     prevSx = t.clientX; prevSy = t.clientY;
-    // knob visual
     const rect = shootBase.getBoundingClientRect();
     moveShootKnob(t.clientX - rect.left - rect.width/2, t.clientY - rect.top - rect.height/2);
   }, { passive: false });
 
-  shootBase.addEventListener('touchend', e => {
-    e.preventDefault();
-    const t = [...e.changedTouches].find(t => t.identifier === shootId);
-    if (t) endShoot();
-  }, { passive: false });
-
-  shootBase.addEventListener('touchcancel', e => { e.preventDefault(); endShoot(); }, { passive: false });
+  shootBase.addEventListener('touchend',   e => { e.preventDefault(); const t = [...e.changedTouches].find(t=>t.identifier===shootId); if(t) endShoot(); }, { passive: false });
+  shootBase.addEventListener('touchcancel',e => { e.preventDefault(); endShoot(); }, { passive: false });
 
   function moveShootKnob(dx, dy) {
     const d = Math.sqrt(dx*dx + dy*dy);
     if (d > SR) { dx = dx/d*SR; dy = dy/d*SR; }
     shootKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
   }
-
   function endShoot() {
     shootId = null; prevSx = null; prevSy = null;
     shootKnob.style.transform = 'translate(-50%,-50%)';
     stopShooting();
   }
 
-  // ── Look zone (หันเฉยๆ) ──────────────────────────────────────
+  // ── Look zone ────────────────────────────────────────────────
   let lookId = null, lx = 0, ly = 0;
-
   lookZone.addEventListener('touchstart', e => {
     e.preventDefault();
-    const t = e.changedTouches[0];
-    lookId = t.identifier; lx = t.clientX; ly = t.clientY;
+    const t = e.changedTouches[0]; lookId = t.identifier; lx = t.clientX; ly = t.clientY;
   }, { passive: false });
-
   lookZone.addEventListener('touchmove', e => {
     e.preventDefault();
     const t = [...e.changedTouches].find(t => t.identifier === lookId);
@@ -288,14 +294,13 @@ function initMobileControls() {
     pitch  = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
     lx = t.clientX; ly = t.clientY;
   }, { passive: false });
-
   lookZone.addEventListener('touchend', e => {
     e.preventDefault();
     const t = [...e.changedTouches].find(t => t.identifier === lookId);
     if (t) lookId = null;
   }, { passive: false });
 
-  // ── Action buttons ───────────────────────────────────────────
+  // ── Hold buttons ─────────────────────────────────────────────
   function hold(id, code) {
     const el = document.getElementById(id);
     if (!el) return;
@@ -304,8 +309,17 @@ function initMobileControls() {
   }
   hold('mc-btn-jump',   'Space');
   hold('mc-btn-crouch', 'KeyC');
-  hold('mc-btn-sprint', 'ShiftLeft');
 
+  // ── Sprint toggle (on/off) ────────────────────────────────────
+  let sprintOn = false;
+  sprintBtn.addEventListener('touchstart', e => {
+    e.preventDefault();
+    sprintOn = !sprintOn;
+    keys['ShiftLeft'] = sprintOn;
+    sprintBtn.classList.toggle('active', sprintOn);
+  }, { passive: false });
+
+  // ── Reload ───────────────────────────────────────────────────
   document.getElementById('mc-btn-reload')
     .addEventListener('touchstart', e => { e.preventDefault(); reload(); }, { passive: false });
 }
