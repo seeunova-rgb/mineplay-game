@@ -1,318 +1,262 @@
 // ─── MOBILE CONTROLS ────────────────────────────────────────────
-// Injects touch input into the existing `keys` object and
-// updates `yaw` / `pitch` directly (same globals as player.js).
-
 const isMobile = () =>
   ('ontouchstart' in window) ||
   (navigator.maxTouchPoints > 0) ||
   window.matchMedia('(pointer: coarse)').matches;
 
-if (!isMobile()) {
-  // Desktop: nothing to do
-} else {
-  // ── Inject mobile controls ──────────────────────────────────
-  // We wait for DOM ready, then build the UI.
-  document.addEventListener('DOMContentLoaded', initMobileControls);
-  // Also try immediately in case DOM is already ready.
+if (isMobile()) {
   if (document.readyState !== 'loading') initMobileControls();
+  else document.addEventListener('DOMContentLoaded', initMobileControls);
 }
 
 function initMobileControls() {
-  if (document.getElementById('mobile-controls')) return; // already init
+  if (document.getElementById('mc-root')) return;
 
-  // ── Override lockscreen for mobile (no pointerlock needed) ──
+  // ── Override start button ────────────────────────────────────
   const startBtn = document.getElementById('start-btn');
   if (startBtn) {
-    startBtn.addEventListener('click', () => {
-      mouseLocked = true; // set the global directly
-    }, true);
+    startBtn.addEventListener('click', () => { mouseLocked = true; }, true);
   }
-
-  // ── Build overlay ────────────────────────────────────────────
-  const overlay = document.createElement('div');
-  overlay.id = 'mobile-controls';
-  overlay.innerHTML = `
-    <!-- Left: joystick -->
-    <div id="mc-joystick-zone">
-      <div id="mc-joystick-base">
-        <div id="mc-joystick-knob"></div>
-      </div>
-    </div>
-
-    <!-- Right: look area (transparent) -->
-    <div id="mc-look-zone"></div>
-
-  `;
-
-  // ปุ่มอยู่ใน container แยก fixed ตรงๆ กับ viewport
-  const btnContainer = document.createElement('div');
-  btnContainer.id = 'mc-btn-container';
-  btnContainer.innerHTML = `
-    <button id="mc-btn-shoot"  class="mc-btn mc-btn-shoot">🔫</button>
-    <button id="mc-btn-jump"   class="mc-btn mc-btn-jump">↑</button>
-    <button id="mc-btn-crouch" class="mc-btn mc-btn-crouch">↓</button>
-    <button id="mc-btn-sprint" class="mc-btn mc-btn-sprint">⚡</button>
-    <button id="mc-btn-reload" class="mc-btn mc-btn-reload">⟳</button>
-  `;
-  document.body.appendChild(overlay);
-  document.body.appendChild(btnContainer);
 
   // ── Inject CSS ───────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
-    #mobile-controls {
-      position: fixed; inset: 0;
-      z-index: 50;
-      pointer-events: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    /* ── Joystick zone (left half bottom) ── */
     #mc-joystick-zone {
-      position: absolute;
+      position: fixed;
       left: 0; bottom: 0;
-      width: 50%; height: 55%;
-      pointer-events: auto;
-      display: flex; align-items: center; justify-content: center;
+      width: 45%; height: 55%;
+      z-index: 50;
+      touch-action: none;
+    }
+    #mc-look-zone {
+      position: fixed;
+      left: 45%; top: 0;
+      width: 55%; height: 70%;
+      z-index: 50;
+      touch-action: none;
     }
     #mc-joystick-base {
+      position: absolute;
       width: 110px; height: 110px;
+      left: 50%; bottom: 30px;
+      transform: translateX(-50%);
       border-radius: 50%;
-      background: rgba(200,255,0,0.07);
-      border: 1.5px solid rgba(200,255,0,0.22);
-      position: relative;
+      background: rgba(0,255,136,0.07);
+      border: 1.5px solid rgba(0,255,136,0.25);
     }
     #mc-joystick-knob {
       position: absolute;
       width: 48px; height: 48px;
-      border-radius: 50%;
-      background: rgba(200,255,0,0.30);
-      border: 1.5px solid rgba(200,255,0,0.7);
       top: 50%; left: 50%;
       transform: translate(-50%,-50%);
-      transition: background .1s;
-    }
-
-    /* ── Look zone (right half) ── */
-    #mc-look-zone {
-      position: absolute;
-      right: 0; top: 0;
-      width: 50%; height: 75%;
-      pointer-events: auto;
-    }
-
-    /* ── Action buttons ── */
-    #mc-btn-container {
-      position: fixed; inset: 0;
-      z-index: 51;
-      pointer-events: none;
+      border-radius: 50%;
+      background: rgba(0,255,136,0.30);
+      border: 1.5px solid rgba(0,255,136,0.7);
     }
     .mc-btn {
-      position: fixed;
-      pointer-events: auto;
-      background: rgba(0,0,0,0.55);
-      border: 1.5px solid rgba(0,255,136,0.5);
-      border-radius: 50%;
-      color: #00ff88;
-      font-family: 'Courier New', monospace;
-      font-size: 18px; font-weight: 700;
-      cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
+      position: fixed !important;
+      border-radius: 50% !important;
+      background: rgba(0,0,0,0.6) !important;
+      border: 1.5px solid rgba(0,255,136,0.5) !important;
+      color: #00ff88 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-weight: 700 !important;
+      z-index: 60 !important;
+      touch-action: none;
       -webkit-tap-highlight-color: transparent;
-      transition: background .08s, transform .08s;
-    }
-    .mc-btn:active { background: rgba(0,255,136,0.22); transform: scale(0.93); }
-
-    /* Portrait */
-    .mc-btn-shoot  { width: 64px; height: 64px; right: 16px; bottom: 16px;  font-size: 22px; }
-    .mc-btn-jump   { width: 52px; height: 52px; right: 90px; bottom: 16px;  font-size: 20px; }
-    .mc-btn-crouch { width: 46px; height: 46px; right: 16px; bottom: 92px;  font-size: 16px; }
-    .mc-btn-sprint { width: 46px; height: 46px; right: 90px; bottom: 92px;  font-size: 16px; }
-    .mc-btn-reload { width: 46px; height: 46px; right: 16px; bottom: 150px; font-size: 20px; }
-
-    /* Landscape */
-    @media (orientation: landscape) {
-      .mc-btn-shoot  { width: 56px; height: 56px; right: 16px; bottom: 12px;  font-size: 20px; }
-      .mc-btn-jump   { width: 46px; height: 46px; right: 82px; bottom: 12px;  font-size: 18px; }
-      .mc-btn-crouch { width: 42px; height: 42px; right: 16px; bottom: 78px;  font-size: 15px; }
-      .mc-btn-sprint { width: 42px; height: 42px; right: 82px; bottom: 78px;  font-size: 15px; }
-      .mc-btn-reload { width: 42px; height: 42px; right: 16px; bottom: 130px; font-size: 18px; }
     }
   `;
   document.head.appendChild(style);
 
+  // ── Build joystick zone ──────────────────────────────────────
+  const joyZone = document.createElement('div');
+  joyZone.id = 'mc-joystick-zone';
+  joyZone.innerHTML = `
+    <div id="mc-joystick-base">
+      <div id="mc-joystick-knob"></div>
+    </div>`;
+  document.body.appendChild(joyZone);
+
+  // ── Build look zone ──────────────────────────────────────────
+  const lookZone = document.createElement('div');
+  lookZone.id = 'mc-look-zone';
+  document.body.appendChild(lookZone);
+
+  // ── Build buttons (เพิ่มตรง body ไม่มี parent จำกัด) ────────
+  const BTN = [
+    { id:'mc-btn-shoot',  icon:'🔫', size:64 },
+    { id:'mc-btn-jump',   icon:'↑',  size:50 },
+    { id:'mc-btn-crouch', icon:'↓',  size:44 },
+    { id:'mc-btn-sprint', icon:'⚡', size:44 },
+    { id:'mc-btn-reload', icon:'⟳',  size:44 },
+  ];
+  BTN.forEach(({ id, icon, size }) => {
+    const btn = document.createElement('button');
+    btn.id = id;
+    btn.className = 'mc-btn';
+    btn.textContent = icon;
+    btn.style.width  = size + 'px';
+    btn.style.height = size + 'px';
+    btn.style.fontSize = (size * 0.35) + 'px';
+    document.body.appendChild(btn);
+  });
+
+  // ── Position buttons (เรียกทุกครั้งที่ rotate) ───────────────
+  function placeButtons() {
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const land = W > H;
+    const r = 16, gap = 10;
+
+    // portrait:  ปุ่มชิดมุมขวาล่าง
+    // landscape: เล็กลงนิด ชิดมุมขวาล่างเหมือนกัน
+    const cfg = land ? [
+      { id:'mc-btn-shoot',  s:54, r:16,  b:12  },
+      { id:'mc-btn-jump',   s:44, r:80,  b:12  },
+      { id:'mc-btn-crouch', s:40, r:134, b:12  },
+      { id:'mc-btn-sprint', s:40, r:80,  b:66  },
+      { id:'mc-btn-reload', s:40, r:16,  b:76  },
+    ] : [
+      { id:'mc-btn-shoot',  s:64, r:16,  b:16  },
+      { id:'mc-btn-jump',   s:50, r:90,  b:16  },
+      { id:'mc-btn-crouch', s:44, r:144, b:16  },
+      { id:'mc-btn-sprint', s:44, r:90,  b:76  },
+      { id:'mc-btn-reload', s:44, r:16,  b:90  },
+    ];
+
+    cfg.forEach(({ id, s, r: right, b: bottom }) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.cssText = `
+        position: fixed;
+        right: ${right}px;
+        bottom: ${bottom}px;
+        left: auto;
+        top: auto;
+        width: ${s}px;
+        height: ${s}px;
+        font-size: ${Math.round(s*0.35)}px;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.6);
+        border: 1.5px solid rgba(0,255,136,0.5);
+        color: #00ff88;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        z-index: 60;
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+        cursor: pointer;
+      `;
+    });
+  }
+
+  placeButtons();
+  window.addEventListener('resize', placeButtons);
+  screen.orientation?.addEventListener('change', () => setTimeout(placeButtons, 200));
+
   // ── Joystick logic ───────────────────────────────────────────
-  const joystickZone = document.getElementById('mc-joystick-zone');
-  const joystickBase = document.getElementById('mc-joystick-base');
-  const joystickKnob = document.getElementById('mc-joystick-knob');
+  const base = document.getElementById('mc-joystick-base');
+  const knob = document.getElementById('mc-joystick-knob');
+  const R = 44;
+  let joyId = null, ox = 0, oy = 0;
 
-  let joystickActive = false;
-  let joystickOrigin = { x: 0, y: 0 };
-  const JOY_RADIUS = 44; // max knob travel in px
-
-  function joystickStart(cx, cy) {
-    joystickActive = true;
-    const rect = joystickBase.getBoundingClientRect();
-    joystickOrigin.x = rect.left + rect.width / 2;
-    joystickOrigin.y = rect.top  + rect.height / 2;
-    joystickMove(cx, cy);
-  }
-
-  function joystickMove(cx, cy) {
-    if (!joystickActive) return;
-    let dx = cx - joystickOrigin.x;
-    let dy = cy - joystickOrigin.y;
-    const dist = Math.sqrt(dx*dx + dy*dy);
-    if (dist > JOY_RADIUS) {
-      dx = dx / dist * JOY_RADIUS;
-      dy = dy / dist * JOY_RADIUS;
-    }
-    joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-
-    // Map to keys
-    const threshold = JOY_RADIUS * 0.25;
-    keys['KeyW'] = dy < -threshold;
-    keys['KeyS'] = dy >  threshold;
-    keys['KeyA'] = dx < -threshold;
-    keys['KeyD'] = dx >  threshold;
-
-    // Auto-sprint when joystick pushed far forward
-    keys['_joySprintHint'] = dy < -(JOY_RADIUS * 0.75);
-  }
-
-  function joystickEnd() {
-    joystickActive = false;
-    joystickKnob.style.transform = 'translate(-50%,-50%)';
-    keys['KeyW'] = keys['KeyS'] = keys['KeyA'] = keys['KeyD'] = false;
-    keys['_joySprintHint'] = false;
-  }
-
-  joystickZone.addEventListener('touchstart', e => {
+  joyZone.addEventListener('touchstart', e => {
     e.preventDefault();
     const t = e.changedTouches[0];
-    joystickStart(t.clientX, t.clientY);
+    joyId = t.identifier;
+    const rect = base.getBoundingClientRect();
+    ox = rect.left + rect.width / 2;
+    oy = rect.top  + rect.height / 2;
+    move(t.clientX, t.clientY);
   }, { passive: false });
 
-  joystickZone.addEventListener('touchmove', e => {
+  joyZone.addEventListener('touchmove', e => {
     e.preventDefault();
-    const t = e.changedTouches[0];
-    joystickMove(t.clientX, t.clientY);
+    const t = [...e.changedTouches].find(t => t.identifier === joyId);
+    if (t) move(t.clientX, t.clientY);
   }, { passive: false });
 
-  joystickZone.addEventListener('touchend', e => {
+  joyZone.addEventListener('touchend', e => {
     e.preventDefault();
-    joystickEnd();
+    const t = [...e.changedTouches].find(t => t.identifier === joyId);
+    if (t) endJoy();
   }, { passive: false });
+
+  function move(cx, cy) {
+    let dx = cx - ox, dy = cy - oy;
+    const d = Math.sqrt(dx*dx + dy*dy);
+    if (d > R) { dx = dx/d*R; dy = dy/d*R; }
+    knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    const thr = R * 0.25;
+    keys['KeyW'] = dy < -thr;
+    keys['KeyS'] = dy >  thr;
+    keys['KeyA'] = dx < -thr;
+    keys['KeyD'] = dx >  thr;
+  }
+
+  function endJoy() {
+    joyId = null;
+    knob.style.transform = 'translate(-50%,-50%)';
+    ['KeyW','KeyS','KeyA','KeyD'].forEach(k => keys[k] = false);
+  }
 
   // ── Look / camera drag ───────────────────────────────────────
-  const lookZone = document.getElementById('mc-look-zone');
-  let lookLastX = 0, lookLastY = 0, lookActive = false;
-  const LOOK_SENS = 0.005;
+  let lookId = null, lx = 0, ly = 0;
+  const SENS = 0.005;
 
   lookZone.addEventListener('touchstart', e => {
     e.preventDefault();
     const t = e.changedTouches[0];
-    lookLastX = t.clientX;
-    lookLastY = t.clientY;
-    lookActive = true;
+    lookId = t.identifier;
+    lx = t.clientX; ly = t.clientY;
   }, { passive: false });
 
   lookZone.addEventListener('touchmove', e => {
     e.preventDefault();
-    if (!lookActive) return;
-    const t = e.changedTouches[0];
-    const dx = t.clientX - lookLastX;
-    const dy = t.clientY - lookLastY;
-    lookLastX = t.clientX;
-    lookLastY = t.clientY;
-
-    yaw   -= dx * LOOK_SENS;
-    pitch -= dy * LOOK_SENS;
-    pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+    const t = [...e.changedTouches].find(t => t.identifier === lookId);
+    if (!t) return;
+    yaw   -= (t.clientX - lx) * SENS;
+    pitch -= (t.clientY - ly) * SENS;
+    pitch  = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+    lx = t.clientX; ly = t.clientY;
   }, { passive: false });
 
   lookZone.addEventListener('touchend', e => {
     e.preventDefault();
-    lookActive = false;
+    const t = [...e.changedTouches].find(t => t.identifier === lookId);
+    if (t) lookId = null;
   }, { passive: false });
 
   // ── Action buttons ───────────────────────────────────────────
-  function holdKey(btn, code) {
-    btn.addEventListener('touchstart', e => { e.preventDefault(); keys[code] = true; }, { passive: false });
-    btn.addEventListener('touchend',   e => { e.preventDefault(); keys[code] = false; }, { passive: false });
+  function hold(id, code) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('touchstart', e => { e.preventDefault(); keys[code] = true; },  { passive: false });
+    el.addEventListener('touchend',   e => { e.preventDefault(); keys[code] = false; }, { passive: false });
   }
+  hold('mc-btn-jump',   'Space');
+  hold('mc-btn-crouch', 'KeyC');
+  hold('mc-btn-sprint', 'ShiftLeft');
 
-  holdKey(document.getElementById('mc-btn-jump'),   'Space');
-  holdKey(document.getElementById('mc-btn-crouch'), 'KeyC');
-  holdKey(document.getElementById('mc-btn-sprint'), 'ShiftLeft');
-
-  // Shoot button
-  const shootBtn = document.getElementById('mc-btn-shoot');
-  shootBtn.addEventListener('touchstart', e => {
+  const shootEl = document.getElementById('mc-btn-shoot');
+  let shootTimer = null;
+  shootEl.addEventListener('touchstart', e => {
     e.preventDefault();
     shoot();
+    shootTimer = setInterval(() => shoot(), 110);
   }, { passive: false });
-  // Rapid fire while held
-  let shootInterval = null;
-  shootBtn.addEventListener('touchstart', () => {
-    shootInterval = setInterval(() => shoot(), 110);
+  shootEl.addEventListener('touchend', e => {
+    e.preventDefault();
+    clearInterval(shootTimer); shootTimer = null;
   }, { passive: false });
-  shootBtn.addEventListener('touchend', () => {
-    clearInterval(shootInterval);
-    shootInterval = null;
-  });
 
-  const reloadBtn = document.getElementById('mc-btn-reload');
-  reloadBtn.addEventListener('touchstart', e => {
+  const reloadEl = document.getElementById('mc-btn-reload');
+  reloadEl.addEventListener('touchstart', e => {
     e.preventDefault();
     reload();
   }, { passive: false });
-
-  // ── Force button positions via JS ───────────────────────────
-  function positionButtons() {
-    const land = window.innerWidth > window.innerHeight;
-    const S = land
-      ? { shoot:[56,16,12], jump:[46,82,12], crouch:[42,16,78], sprint:[42,82,78], reload:[42,16,130] }
-      : { shoot:[64,16,16], jump:[52,90,16], crouch:[46,16,92],  sprint:[46,90,92],  reload:[46,16,150] };
-    const FS = land
-      ? ['20px','18px','15px','15px','18px']
-      : ['22px','20px','16px','16px','20px'];
-
-    const ids = ['mc-btn-shoot','mc-btn-jump','mc-btn-crouch','mc-btn-sprint','mc-btn-reload'];
-    const keys2 = ['shoot','jump','crouch','sprint','reload'];
-
-    ids.forEach((id, i) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      const [size, r, b] = S[keys2[i]];
-      el.style.cssText = [
-        'position:fixed',
-        `right:${r}px`,
-        `bottom:${b}px`,
-        'top:auto',
-        'left:auto',
-        `width:${size}px`,
-        `height:${size}px`,
-        `font-size:${FS[i]}`,
-        'pointer-events:auto',
-        'background:rgba(0,0,0,0.55)',
-        'border:1.5px solid rgba(0,255,136,0.5)',
-        'border-radius:50%',
-        'color:#00ff88',
-        'font-family:monospace',
-        'font-weight:700',
-        'cursor:pointer',
-        'display:flex',
-        'align-items:center',
-        'justify-content:center',
-        'z-index:55',
-        '-webkit-tap-highlight-color:transparent',
-      ].join(';');
-    });
-  }
-
-  positionButtons();
-  window.addEventListener('resize', positionButtons);
-  window.addEventListener('orientationchange', () => setTimeout(positionButtons, 300));
 }
