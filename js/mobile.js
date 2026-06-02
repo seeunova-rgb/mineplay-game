@@ -106,9 +106,9 @@ function initMobileControls() {
     const W = window.innerWidth, H = window.innerHeight;
     const land = W > H;
 
-    // shoot joystick: ขวาล่าง ไม่ทับ bottom HUD (bottom ~90px)
-    const SZ = 110; // ขนาด shoot base
-    const sr = 16, sb = land ? 100 : 110;
+    // shoot joystick ชิดขวาล่าง เหนือ HUD นิดหน่อย
+    const SZ = 110;
+    const sr = 16, sb = 90; // bottom คงที่ 90px เหนือ HUD
     shootBase.style.cssText = `
       position: fixed; right: ${sr}px; bottom: ${sb}px;
       width: ${SZ}px; height: ${SZ}px; border-radius: 50%;
@@ -117,21 +117,16 @@ function initMobileControls() {
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // ปุ่มอื่น: เรียงรอบ shoot joystick ไม่ทับ
-    // jump: เหนือ shoot, sprint: ซ้ายของ shoot, crouch: ซ้าย-ล่าง, reload: ซ้ายบน
-    const scx = W - sr - SZ/2; // center x ของ shoot
-    const scy = H - sb - SZ/2; // center y ของ shoot (จากบน)
-
-    const btnLayout = land ? [
-      { id:'mc-btn-jump',   s:44, right: sr + SZ + 8,        bottom: sb },
-      { id:'mc-btn-sprint', s:40, right: sr + SZ + 8,        bottom: sb + 54 },
-      { id:'mc-btn-crouch', s:40, right: sr + SZ + 58,       bottom: sb },
-      { id:'mc-btn-reload', s:40, right: sr,                  bottom: sb + SZ + 8 },
-    ] : [
-      { id:'mc-btn-jump',   s:50, right: sr + SZ + 10,       bottom: sb },
-      { id:'mc-btn-sprint', s:44, right: sr + SZ + 10,       bottom: sb + 60 },
-      { id:'mc-btn-crouch', s:44, right: sr + SZ + 64,       bottom: sb },
-      { id:'mc-btn-reload', s:44, right: sr,                  bottom: sb + SZ + 10 },
+    // ปุ่มอื่นเรียงซ้ายของ shoot joystick ระดับเดียวกัน
+    //   jump   | sprint  อยู่แถวบน
+    //   crouch | [shoot] อยู่แถวล่าง
+    //   reload อยู่เหนือ shoot
+    const gap = 8;
+    const btnLayout = [
+      { id:'mc-btn-reload', s:44, right: sr,                  bottom: sb + SZ + gap },
+      { id:'mc-btn-jump',   s:50, right: sr + SZ + gap,       bottom: sb + SZ/2 - 25 + 54 },
+      { id:'mc-btn-crouch', s:44, right: sr + SZ + gap + 58,  bottom: sb + SZ/2 - 22 },
+      { id:'mc-btn-sprint', s:44, right: sr + SZ + gap,       bottom: sb + SZ/2 - 22 },
     ];
 
     btnLayout.forEach(({ id, s, right, bottom }) => {
