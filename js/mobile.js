@@ -26,13 +26,13 @@ function initMobileControls() {
       width: 55%; height: 100%; z-index: 50; touch-action: none;
     }
     #mc-joystick-base {
-      position: fixed; width: 110px; height: 110px;
-      left: 10px; bottom: 20px; border-radius: 50%;
+      position: fixed; width: min(110px, 26vw); height: min(110px, 26vw);
+      left: 10px; bottom: max(16px, env(safe-area-inset-bottom, 0px)); border-radius: 50%;
       background: rgba(0,255,136,0.07);
       border: 1.5px solid rgba(0,255,136,0.25);
     }
     #mc-joystick-knob {
-      position: absolute; width: 48px; height: 48px;
+      position: absolute; width: 44%; height: 44%;
       top: 50%; left: 50%; transform: translate(-50%,-50%);
       border-radius: 50%;
       background: rgba(0,255,136,0.30);
@@ -103,26 +103,43 @@ function initMobileControls() {
   // shoot joystick = วงใหญ่ขวาล่าง
   // ปุ่มอื่นเรียงด้านบนและซ้ายของ shoot
   function placeButtons() {
-    // ใช้ CSS bottom ล้วนๆ อ้างอิง visual viewport จริง
-    // ROW1 = แถวล่าง, ROW2 = แถวบน (เหนือ ROW1)
-    const ROW1 = 88, ROW2 = 148;
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+
+    // Scale ปุ่มตามขนาดจอ: base ref = 400px wide, จำกัด scale 0.7–1.2
+    const scale = Math.min(1.2, Math.max(0.7, W / 420));
+
+    const SHOOT_SIZE = Math.round(110 * scale);
+    const BTN_L      = Math.round(50  * scale);  // jump (ใหญ่สุด)
+    const BTN_S      = Math.round(44  * scale);  // reload/crouch/sprint
+    const PAD        = Math.round(14  * scale);  // margin ขอบขวา/ล่าง
+    const GAP        = Math.round(8   * scale);  // ช่องว่างระหว่างปุ่ม
+
+    // safe area bottom (notch/home bar)
+    const safeBottom = parseInt(
+      getComputedStyle(document.documentElement)
+        .getPropertyValue('--sab') || '0'
+    ) || 0;
+
+    const ROW1_bottom = PAD + safeBottom;                      // แถวล่าง
+    const ROW2_bottom = ROW1_bottom + BTN_S + GAP;             // แถวบน
+    const SHOOT_right = PAD;
+    const SMALL_right = SHOOT_right + SHOOT_SIZE + GAP;        // คอลัมน์ซ้ายของ shoot
+    const WIDE_right  = SMALL_right + BTN_S + GAP;             // คอลัมน์ที่ 3
 
     shootBase.style.cssText = `
-      position: fixed; right: 16px; bottom: ${ROW1}px;
-      width: 110px; height: 110px; border-radius: 50%;
+      position: fixed; right: ${SHOOT_right}px; bottom: ${ROW1_bottom}px;
+      width: ${SHOOT_SIZE}px; height: ${SHOOT_SIZE}px; border-radius: 50%;
       background: rgba(255,80,80,0.08);
       border: 1.5px solid rgba(255,80,80,0.35);
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // reload อยู่เหนือ shoot (ROW2)
-    // jump อยู่ซ้ายของ shoot แถวบน
-    // crouch/sprint อยู่ซ้ายของ shoot แถวล่าง
     const btnLayout = [
-      { id:'mc-btn-reload', s:44, right:  16, bottom: ROW2 },
-      { id:'mc-btn-jump',   s:50, right: 134, bottom: ROW2 },
-      { id:'mc-btn-crouch', s:44, right: 192, bottom: ROW1 },
-      { id:'mc-btn-sprint', s:44, right: 134, bottom: ROW1 },
+      { id:'mc-btn-reload', s: BTN_S, right: SHOOT_right, bottom: ROW2_bottom },
+      { id:'mc-btn-jump',   s: BTN_L, right: SMALL_right, bottom: ROW2_bottom },
+      { id:'mc-btn-sprint', s: BTN_S, right: SMALL_right, bottom: ROW1_bottom },
+      { id:'mc-btn-crouch', s: BTN_S, right: WIDE_right,  bottom: ROW1_bottom },
     ];
 
     btnLayout.forEach(({ id, s, right, bottom }) => {
@@ -131,7 +148,7 @@ function initMobileControls() {
       el.style.cssText = `
         position: fixed; right: ${right}px; bottom: ${bottom}px;
         left: auto; top: auto; width: ${s}px; height: ${s}px;
-        font-size: ${Math.round(s*0.35)}px; border-radius: 50%;
+        font-size: ${Math.round(s * 0.38)}px; border-radius: 50%;
         background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
         color: #00ff88; display: flex; align-items: center; justify-content: center;
         font-weight: 700; z-index: 62; touch-action: none;
@@ -139,6 +156,11 @@ function initMobileControls() {
       `;
     });
   }
+
+  // inject CSS var สำหรับ safe-area-inset-bottom
+  const sabStyle = document.createElement('style');
+  sabStyle.textContent = `:root { --sab: env(safe-area-inset-bottom, 0px); }`;
+  document.head.appendChild(sabStyle);
 
   placeButtons();
   window.addEventListener('resize', placeButtons);
