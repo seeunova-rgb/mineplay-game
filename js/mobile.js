@@ -269,7 +269,7 @@ function initMobileControls() {
     reload();
   }, { passive: false });
 
-  // ── Force button positions via JS (ป้องกัน CSS conflict) ────────
+  // ── Force button positions via JS ───────────────────────────
   function positionButtons() {
     const land = window.innerWidth > window.innerHeight;
     const S = land
@@ -279,7 +279,13 @@ function initMobileControls() {
     const set = (id, [size, r, b]) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.style.cssText += `;position:fixed!important;right:${r}px!important;bottom:${b}px!important;width:${size}px!important;height:${size}px!important;`;
+      el.style.setProperty('position', 'fixed', 'important');
+      el.style.setProperty('right',    r + 'px', 'important');
+      el.style.setProperty('bottom',   b + 'px', 'important');
+      el.style.setProperty('width',    size + 'px', 'important');
+      el.style.setProperty('height',   size + 'px', 'important');
+      el.style.setProperty('left',     'auto', 'important');
+      el.style.setProperty('top',      'auto', 'important');
     };
     set('mc-btn-shoot',  S.shoot);
     set('mc-btn-jump',   S.jump);
@@ -290,5 +296,5 @@ function initMobileControls() {
 
   positionButtons();
   window.addEventListener('resize', positionButtons);
-  window.addEventListener('orientationchange', () => setTimeout(positionButtons, 100));
+  window.addEventListener('orientationchange', () => setTimeout(positionButtons, 300));
 }
