@@ -42,7 +42,12 @@ function initMobileControls() {
     <!-- Right: look area (transparent) -->
     <div id="mc-look-zone"></div>
 
-    <!-- Action buttons -->
+  `;
+
+  // ปุ่มอยู่ใน container แยก fixed ตรงๆ กับ viewport
+  const btnContainer = document.createElement('div');
+  btnContainer.id = 'mc-btn-container';
+  btnContainer.innerHTML = `
     <button id="mc-btn-shoot"  class="mc-btn mc-btn-shoot">🔫</button>
     <button id="mc-btn-jump"   class="mc-btn mc-btn-jump">↑</button>
     <button id="mc-btn-crouch" class="mc-btn mc-btn-crouch">↓</button>
@@ -50,6 +55,7 @@ function initMobileControls() {
     <button id="mc-btn-reload" class="mc-btn mc-btn-reload">⟳</button>
   `;
   document.body.appendChild(overlay);
+  document.body.appendChild(btnContainer);
 
   // ── Inject CSS ───────────────────────────────────────────────
   const style = document.createElement('style');
@@ -97,36 +103,41 @@ function initMobileControls() {
     }
 
     /* ── Action buttons ── */
+    #mc-btn-container {
+      position: fixed; inset: 0;
+      z-index: 51;
+      pointer-events: none;
+    }
     .mc-btn {
-      position: absolute;
+      position: fixed;
       pointer-events: auto;
       background: rgba(0,0,0,0.55);
-      border: 1.5px solid rgba(200,255,0,0.35);
+      border: 1.5px solid rgba(0,255,136,0.5);
       border-radius: 50%;
-      color: #c8ff00;
+      color: #00ff88;
       font-family: 'Courier New', monospace;
-      font-size: 18px;
-      font-weight: 700;
+      font-size: 18px; font-weight: 700;
       cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       -webkit-tap-highlight-color: transparent;
       transition: background .08s, transform .08s;
     }
-    .mc-btn:active { background: rgba(200,255,0,0.22); transform: scale(0.93); }
+    .mc-btn:active { background: rgba(0,255,136,0.22); transform: scale(0.93); }
 
-    .mc-btn-shoot  { width: 68px; height: 68px; right: 22px;  bottom: 48px;  font-size: 22px; }
-    .mc-btn-jump   { width: 52px; height: 52px; right: 102px; bottom: 80px;  font-size: 20px; }
-    .mc-btn-crouch { width: 46px; height: 46px; right: 106px; bottom: 24px;  font-size: 16px; }
-    .mc-btn-sprint { width: 46px; height: 46px; right: 22px;  bottom: 128px; font-size: 16px; }
-    .mc-btn-reload { width: 52px; height: 52px; right: 102px; bottom: 148px; font-size: 22px; }
+    /* Portrait */
+    .mc-btn-shoot  { width: 64px; height: 64px; right: 16px; bottom: 16px;  font-size: 22px; }
+    .mc-btn-jump   { width: 52px; height: 52px; right: 90px; bottom: 16px;  font-size: 20px; }
+    .mc-btn-crouch { width: 46px; height: 46px; right: 16px; bottom: 92px;  font-size: 16px; }
+    .mc-btn-sprint { width: 46px; height: 46px; right: 90px; bottom: 92px;  font-size: 16px; }
+    .mc-btn-reload { width: 46px; height: 46px; right: 16px; bottom: 150px; font-size: 20px; }
 
-    /* Landscape: ชิดมุมขวาล่างแน่นขึ้น */
+    /* Landscape */
     @media (orientation: landscape) {
-      .mc-btn-shoot  { right: 16px !important; bottom: 12px !important; width: 58px !important; height: 58px !important; }
-      .mc-btn-jump   { right: 86px !important; bottom: 12px !important; width: 46px !important; height: 46px !important; }
-      .mc-btn-crouch { right: 16px !important; bottom: 80px !important; width: 42px !important; height: 42px !important; }
-      .mc-btn-sprint { right: 86px !important; bottom: 80px !important; width: 42px !important; height: 42px !important; }
-      .mc-btn-reload { right: 16px !important; bottom: 134px !important; width: 46px !important; height: 46px !important; }
+      .mc-btn-shoot  { width: 56px; height: 56px; right: 16px; bottom: 12px;  font-size: 20px; }
+      .mc-btn-jump   { width: 46px; height: 46px; right: 82px; bottom: 12px;  font-size: 18px; }
+      .mc-btn-crouch { width: 42px; height: 42px; right: 16px; bottom: 78px;  font-size: 15px; }
+      .mc-btn-sprint { width: 42px; height: 42px; right: 82px; bottom: 78px;  font-size: 15px; }
+      .mc-btn-reload { width: 42px; height: 42px; right: 16px; bottom: 130px; font-size: 18px; }
     }
   `;
   document.head.appendChild(style);
