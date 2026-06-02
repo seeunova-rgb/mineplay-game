@@ -217,6 +217,6 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
 
 
 /* DEBUG PANEL */
-#debug-toggle{position:fixed;right:10px;bottom:10px;z-index:99999;background:#111;border:1px solid #00ff88;color:#00ff88;padding:8px;font-size:12px;pointer-events:auto}
-#debug-panel{display:none;position:fixed;right:10px;bottom:50px;z-index:99999;background:rgba(0,0,0,.85);border:1px solid #00ff88;padding:10px;color:#00ff88;font-size:12px;min-width:180px;font-family:monospace;pointer-events:auto}
+#debug-toggle{position:fixed;left:10px;bottom:10px;z-index:99999;background:#111;border:1px solid #00ff88;color:#00ff88;padding:8px;font-size:12px;pointer-events:auto}
+#debug-panel{display:none;position:fixed;left:10px;bottom:50px;z-index:99999;background:rgba(0,0,0,.85);border:1px solid #00ff88;padding:10px;color:#00ff88;font-size:12px;min-width:220px;font-family:monospace;pointer-events:auto;max-height:200px;overflow:auto}
 #debug-panel.show{display:block}
