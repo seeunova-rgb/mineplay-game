@@ -117,56 +117,62 @@ function initMobileControls() {
 
   // ── Layout ───────────────────────────────────────────────────
   function placeButtons() {
-    const W = window.innerWidth;
-    const scale = Math.min(1.15, Math.max(0.75, W / 420));
+    const W   = window.innerWidth;
+    const H   = window.innerHeight;
+    const sc  = Math.min(1.1, Math.max(0.75, W / 420));
 
-    const SHOOT   = Math.round(95 * scale);   // shoot joystick
-    const BIG     = Math.round(44 * scale);   // jump & crouch (เท่ากัน)
-    const SML     = Math.round(32 * scale);   // reload (เล็กกว่า)
-    const PAD     = Math.round(12 * scale);
-    const GAP     = Math.round(7  * scale);
-    const BOT     = PAD + BIG + GAP;  // เว้นพื้นที่ด้านล่าง shoot สำหรับ crouch
+    const SHOOT = Math.round(95 * sc);
+    const BIG   = Math.round(44 * sc);   // jump & crouch
+    const SML   = Math.round(32 * sc);   // reload
+    const GAP   = Math.round(8  * sc);
+    const PAD   = Math.round(12 * sc);
 
-    // shoot อยู่กึ่งกลางหน้าจอแนวนอน ฝั่งขวา
-    // ใช้ left แทน right เพื่อ center ได้ง่าย
-    const H = window.innerHeight;
-    const shootLeft   = Math.round(W / 2 + W * 0.05);  // กึ่งกลางหน้าจอ + เยื้องขวานิดหน่อย
-    const shootBottom = Math.round(BOT);
-    const sCX_left    = shootLeft + SHOOT / 2;          // center X (จากซ้าย)
-    const sCY         = shootBottom + SHOOT / 2;        // center Y (จากล่าง)
+    // Shoot อยู่กึ่งกลางหน้าจอแนวนอน ชิดล่าง
+    // center X ของ shoot = W/2
+    const shootL = Math.round(W / 2 - SHOOT / 2);
+    const shootB = Math.round(PAD + BIG + GAP);   // เว้นด้านล่างให้ crouch
 
-    // ── shoot joystick (กลางหน้าจอ ฝั่งขวา) ────────────────
     shootBase.style.cssText = `
-      position: fixed; left: ${shootLeft}px; bottom: ${shootBottom}px;
-      width: ${SHOOT}px; height: ${SHOOT}px; border-radius: 50%;
+      position: fixed;
+      left: ${shootL}px; bottom: ${shootB}px;
+      width: ${SHOOT}px; height: ${SHOOT}px;
+      border-radius: 50%;
       background: rgba(255,80,80,0.08);
       border: 1.5px solid rgba(255,80,80,0.35);
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // jump — บนขวาของ shoot (เหนือ shoot, align กลาง)
-    const jumpLeft   = Math.round(sCX_left - BIG / 2);
-    const jumpBottom = Math.round(shootBottom + SHOOT + GAP);
-    applyBtnLeft('mc-btn-jump', BIG, jumpLeft, jumpBottom);
+    // center X ของ shoot (px จากซ้าย)
+    const sX = shootL + SHOOT / 2;
+    const sY = shootB + SHOOT / 2;  // center Y จากล่าง
 
-    // crouch — ล่างขวาของ shoot (ใต้ shoot, align กลาง)
-    const crouchLeft   = Math.round(sCX_left - BIG / 2);
-    const crouchBottom = Math.round(shootBottom - BIG - GAP);
-    applyBtnLeft('mc-btn-crouch', BIG, crouchLeft, Math.max(PAD, crouchBottom));
+    // jump — บนขวาของ shoot (กลาง X ตรงกับ shoot, อยู่เหนือ shoot)
+    applyBtnLeft('mc-btn-jump', BIG,
+      Math.round(sX - BIG / 2),
+      Math.round(shootB + SHOOT + GAP)
+    );
+
+    // crouch — ล่างขวาของ shoot (กลาง X ตรงกับ shoot, อยู่ใต้ shoot)
+    applyBtnLeft('mc-btn-crouch', BIG,
+      Math.round(sX - BIG / 2),
+      PAD
+    );
 
     // reload — ซ้ายล่างของ shoot
-    const reloadLeft   = Math.round(shootLeft - SML - GAP);
-    const reloadBottom = Math.round(shootBottom);
-    applyBtnLeft('mc-btn-reload', SML, reloadLeft, reloadBottom);
+    applyBtnLeft('mc-btn-reload', SML,
+      Math.round(shootL - SML - GAP),
+      shootB
+    );
 
-    // ── sprint toggle — ขวาล่างของ joystick (ฝั่งซ้าย) ─────
-    const joySize    = Math.min(100, Math.round(W * 0.24));
-    const sprintSize = Math.round(34 * scale);
-    const sprintLeft   = 10 + joySize - sprintSize / 2;
-    const sprintBottom = BOT;
+    // sprint — ขวาล่างของ joystick ฝั่งซ้าย
+    const joyW      = Math.min(100, Math.round(W * 0.24));
+    const sprintSz  = Math.round(34 * sc);
     sprintBtn.style.cssText = `
-      position: fixed; left: ${Math.round(sprintLeft)}px; bottom: ${Math.round(sprintBottom)}px;
-      width: ${sprintSize}px; height: ${sprintSize}px; font-size: ${Math.round(sprintSize*0.4)}px;
+      position: fixed;
+      left: ${Math.round(10 + joyW - sprintSz / 2)}px;
+      bottom: ${PAD}px;
+      width: ${sprintSz}px; height: ${sprintSz}px;
+      font-size: ${Math.round(sprintSz * 0.4)}px;
       border-radius: 50%;
       background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
       color: #00ff88; display: flex; align-items: center; justify-content: center;
