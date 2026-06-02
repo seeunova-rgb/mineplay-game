@@ -20,6 +20,7 @@
   <div id="top-left">
     <div id="coord-display">POS: 0.0 / 0.0</div>
     <div id="fps-display">FPS: --</div>
+    <div id="kills-display">KILLS: 0</div>
   </div>
 
   <!-- Minimap -->
@@ -28,26 +29,19 @@
     <div id="minimap-dot"></div>
   </div>
 
-  <!-- Sprint / Stamina bar -->
+  <div id="health-bar-wrap">
+    <div class="sb-label">HEALTH</div>
+    <div id="health-bar-bg"><div id="health-bar"></div></div>
+  </div>
+
   <div id="sprint-bar-wrap">
     <div class="sb-label">STAMINA</div>
     <div id="sprint-bar-bg"><div id="sprint-bar"></div></div>
   </div>
 
-  <!-- Bottom HUD -->
-  <div id="bottom-hud">
-    <div class="hud-block">
-      <div class="hud-label">Health</div>
-      <div class="hud-value hp" id="hp-val">100</div>
-    </div>
-    <div class="hud-block" style="align-items:center">
-      <div class="hud-label">Kills</div>
-      <div class="hud-value kills" id="kills-val">0</div>
-    </div>
-    <div class="hud-block" style="align-items:flex-end">
-      <div class="hud-label">Ammo</div>
-      <div class="hud-value ammo" id="ammo-val">30<span class="ammo-reserve">/90</span></div>
-    </div>
+  <div id="ammo-hud">
+    <div class="hud-label">Ammo</div>
+    <div class="hud-value ammo" id="ammo-val">30<span class="ammo-reserve">/90</span></div>
   </div>
 
   <div id="weapon-name">AK-74M</div>
@@ -84,11 +78,11 @@
   4. weapon.js  — model, shoot, bob                (globals: weaponGroup, shoot, updateWeaponBob)
   5. game.js    — game loop, resize, start button  (entry point)
 -->
-<script src="js/scene.js?v=21"></script>
-<script src="js/world.js?v=21"></script>
-<script src="js/player.js?v=21"></script>
-<script src="js/weapon.js?v=21"></script>
-<script src="js/game.js?v=21"></script>
-<script src="js/mobile.js?v=21"></script>
+<script src="js/scene.js?v=22"></script>
+<script src="js/world.js?v=22"></script>
+<script src="js/player.js?v=22"></script>
+<script src="js/weapon.js?v=22"></script>
+<script src="js/game.js?v=22"></script>
+<script src="js/mobile.js?v=22"></script>
 </body>
 </html>
