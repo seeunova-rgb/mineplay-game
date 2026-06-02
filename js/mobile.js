@@ -104,29 +104,28 @@ function initMobileControls() {
   // ปุ่มอื่นเรียงด้านบนและซ้ายของ shoot
   function placeButtons() {
     const W = window.innerWidth, H = window.innerHeight;
-    const land = W > H;
 
-    // shoot joystick ชิดขวาล่าง เหนือ HUD นิดหน่อย
-    const SZ = 110;
-    const sr = 16, sb = 90; // bottom คงที่ 90px เหนือ HUD
+    // ทุกอย่างกำหนด bottom ตรงๆ ไม่คำนวณต่อกัน
+    // HUD bar อยู่ที่ bottom ~0-80px
+    // แถวล่าง: bottom 90px  (เหนือ HUD bar)
+    // แถวบน:  bottom 148px  (90 + 50 + 8)
+
+    // shoot joystick: ขวาล่าง แถวล่าง
     shootBase.style.cssText = `
-      position: fixed; right: ${sr}px; bottom: ${sb}px;
-      width: ${SZ}px; height: ${SZ}px; border-radius: 50%;
+      position: fixed; right: 16px; bottom: 90px;
+      width: 110px; height: 110px; border-radius: 50%;
       background: rgba(255,80,80,0.08);
       border: 1.5px solid rgba(255,80,80,0.35);
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // ปุ่มอื่นเรียงซ้ายของ shoot joystick ระดับเดียวกัน
-    //   jump   | sprint  อยู่แถวบน
-    //   crouch | [shoot] อยู่แถวล่าง
-    //   reload อยู่เหนือ shoot
-    const gap = 8;
     const btnLayout = [
-      { id:'mc-btn-reload', s:44, right: sr,                  bottom: sb + SZ + gap },
-      { id:'mc-btn-jump',   s:50, right: sr + SZ + gap,       bottom: sb + SZ/2 - 25 + 54 },
-      { id:'mc-btn-crouch', s:44, right: sr + SZ + gap + 58,  bottom: sb + SZ/2 - 22 },
-      { id:'mc-btn-sprint', s:44, right: sr + SZ + gap,       bottom: sb + SZ/2 - 22 },
+      // แถวล่าง: crouch ซ้ายของ shoot, sprint ซ้ายต่อไป
+      { id:'mc-btn-crouch', s:44, right: 134, bottom: 90  },
+      { id:'mc-btn-sprint', s:44, right: 186, bottom: 90  },
+      // แถวบน: jump เหนือ crouch, reload มุมขวาเหนือ shoot
+      { id:'mc-btn-jump',   s:50, right: 134, bottom: 148 },
+      { id:'mc-btn-reload', s:44, right: 16,  bottom: 210 },
     ];
 
     btnLayout.forEach(({ id, s, right, bottom }) => {
