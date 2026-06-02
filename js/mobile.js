@@ -116,25 +116,33 @@ function initMobileControls() {
   document.body.appendChild(sprintBtn);
 
   // ── Layout ───────────────────────────────────────────────────
+  // ใช้ vmin เป็นหน่วยหลักเพื่อให้ scale ตามหน้าจอทุกขนาด
+  function vmin(n) { return Math.round(n * Math.min(window.innerWidth, window.innerHeight) / 100); }
+
   function placeButtons() {
     const W   = window.innerWidth;
-    const H   = window.innerHeight;
-    const sc  = Math.min(1.1, Math.max(0.75, W / 420));
+    const safeB = parseInt(getComputedStyle(document.documentElement)
+                    .getPropertyValue('--sab') || '0') || 0;
 
-    const SHOOT = Math.round(95 * sc);
-    const BIG   = Math.round(44 * sc);   // jump & crouch
-    const SML   = Math.round(32 * sc);   // reload
-    const GAP   = Math.round(8  * sc);
-    const PAD   = Math.round(12 * sc);
+    // ขนาดปุ่ม (vmin) — clamp ไม่ให้ใหญ่/เล็กเกินไปบน tablet
+    const SHOOT = Math.min(Math.max(vmin(14), 72), 110);  // ปุ่มยิง
+    const BTN   = Math.min(Math.max(vmin(9),  40),  58);  // jump/crouch
+    const RLD   = Math.min(Math.max(vmin(8),  36),  52);  // reload
+    const GAP   = Math.min(Math.max(vmin(2),   8),  14);  // ช่องว่างระหว่างปุ่ม
+    const PAD   = Math.min(Math.max(vmin(3),  12),  24);  // padding จากขอบจอ
 
-    // Shoot อยู่กึ่งกลางหน้าจอแนวนอน ชิดล่าง
-    // center X ของ shoot = W/2
-    const shootL = Math.round(W / 2 - SHOOT / 2);
-    const shootB = Math.round(PAD + BIG + GAP);   // เว้นด้านล่างให้ crouch
+    // ── Shoot: ล่างขวา ─────────────────────────────────────────
+    // center ของ shoot group ห่างจากขอบขวา
+    const groupR  = PAD + SHOOT / 2 + BTN + GAP;   // cx จากขอบขวา
+    const groupB  = PAD + safeB + SHOOT / 2 + BTN + GAP; // cy จากขอบล่าง
 
+    // shoot วางจาก right/bottom
+    const shootR = Math.round(groupR - SHOOT / 2);
+    const shootB = Math.round(groupB - SHOOT / 2);
     shootBase.style.cssText = `
       position: fixed;
-      left: ${shootL}px; bottom: ${shootB}px;
+      right: ${shootR}px; bottom: ${shootB}px;
+      left: auto; top: auto;
       width: ${SHOOT}px; height: ${SHOOT}px;
       border-radius: 50%;
       background: rgba(255,80,80,0.08);
@@ -142,37 +150,36 @@ function initMobileControls() {
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // center X ของ shoot (px จากซ้าย)
-    const sX = shootL + SHOOT / 2;
-    const sY = shootB + SHOOT / 2;  // center Y จากล่าง
-
-    // jump — บนขวาของ shoot (กลาง X ตรงกับ shoot, อยู่เหนือ shoot)
-    applyBtnLeft('mc-btn-jump', BIG,
-      Math.round(sX - BIG / 2),
-      Math.round(shootB + SHOOT + GAP)
+    // ── Jump: บนขวาของ Shoot ───────────────────────────────────
+    //    center = (groupR, groupB + SHOOT/2 + GAP + BTN/2)
+    applyBtn('mc-btn-jump', BTN,
+      Math.round(groupR - BTN / 2),                      // right
+      Math.round(groupB + SHOOT / 2 + GAP)               // bottom
     );
 
-    // crouch — ล่างขวาของ shoot (กลาง X ตรงกับ shoot, อยู่ใต้ shoot)
-    applyBtnLeft('mc-btn-crouch', BIG,
-      Math.round(sX - BIG / 2),
-      PAD
+    // ── Crouch: ล่างขวาของ Shoot ──────────────────────────────
+    //    center = (groupR + SHOOT/2 + GAP + BTN/2, groupB - SHOOT/2 - GAP - BTN/2)
+    applyBtn('mc-btn-crouch', BTN,
+      Math.round(groupR - SHOOT / 2 - GAP - BTN),        // right
+      Math.round(groupB - SHOOT / 2 - GAP - BTN)         // bottom
     );
 
-    // reload — ซ้ายล่างของ shoot
-    applyBtnLeft('mc-btn-reload', SML,
-      Math.round(shootL - SML - GAP),
-      shootB
+    // ── Reload: ล่างซ้ายของ Shoot ─────────────────────────────
+    //    center = (groupR + SHOOT/2 + GAP + RLD/2, groupB - SHOOT/2 - GAP - RLD/2)
+    applyBtn('mc-btn-reload', RLD,
+      Math.round(groupR + SHOOT / 2 + GAP),              // right
+      Math.round(groupB - SHOOT / 2 - GAP - RLD)         // bottom
     );
 
-    // sprint — ขวาล่างของ joystick ฝั่งซ้าย
-    const joyW      = Math.min(100, Math.round(W * 0.24));
-    const sprintSz  = Math.round(34 * sc);
+    // ── Sprint: ล่างขวาของ joystick ฝั่งซ้าย ─────────────────
+    const joyR  = Math.min(Math.max(vmin(14), 72), 110); // joystick radius ≈ เท่า SHOOT
+    const spSz  = Math.min(Math.max(vmin(8), 34), 50);
     sprintBtn.style.cssText = `
       position: fixed;
-      left: ${Math.round(10 + joyW - sprintSz / 2)}px;
-      bottom: ${PAD}px;
-      width: ${sprintSz}px; height: ${sprintSz}px;
-      font-size: ${Math.round(sprintSz * 0.4)}px;
+      left: ${Math.round(PAD + joyR + GAP)}px;
+      bottom: ${Math.round(PAD + safeB)}px;
+      width: ${spSz}px; height: ${spSz}px;
+      font-size: ${Math.round(spSz * 0.42)}px;
       border-radius: 50%;
       background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
       color: #00ff88; display: flex; align-items: center; justify-content: center;
@@ -181,28 +188,23 @@ function initMobileControls() {
     `;
   }
 
+  // safe-area-inset-bottom ผ่าน CSS custom property
+  const sabStyle = document.createElement('style');
+  sabStyle.textContent = `:root { --sab: 0px; }
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      :root { --sab: env(safe-area-inset-bottom); }
+    }`;
+  document.head.appendChild(sabStyle);
+
+  // applyBtn วางจาก right/bottom (ใช้ร่วมกันทุกปุ่มฝั่งขวา)
   function applyBtn(id, size, right, bottom) {
     const el = document.getElementById(id);
     if (!el) return;
     el.style.cssText = `
-      position: fixed; right: ${Math.round(right)}px; bottom: ${Math.round(bottom)}px;
+      position: fixed;
+      right: ${Math.round(right)}px; bottom: ${Math.round(bottom)}px;
       left: auto; top: auto;
-      width: ${size}px; height: ${size}px; font-size: ${Math.round(size*0.4)}px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
-      color: #00ff88; display: flex; align-items: center; justify-content: center;
-      font-weight: 700; z-index: 62; touch-action: none;
-      -webkit-tap-highlight-color: transparent; cursor: pointer;
-    `;
-  }
-
-  function applyBtnLeft(id, size, left, bottom) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.style.cssText = `
-      position: fixed; left: ${Math.round(left)}px; bottom: ${Math.round(bottom)}px;
-      right: auto; top: auto;
-      width: ${size}px; height: ${size}px; font-size: ${Math.round(size*0.4)}px;
+      width: ${size}px; height: ${size}px; font-size: ${Math.round(size * 0.42)}px;
       border-radius: 50%;
       background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
       color: #00ff88; display: flex; align-items: center; justify-content: center;
