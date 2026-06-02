@@ -159,6 +159,4 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
   .hud-value { font-size: 22px; }
   .hud-label { font-size: 8px; }
   #reload-text { bottom: 60px; right: 50%; transform: translateX(50%); }
-
-  /* ปุ่มถูกจัดการโดย JS ใน mobile.js */
 }
