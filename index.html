@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>MINEPLAY</title>
+  <link rel="stylesheet" href="css/hud.css?v=21">
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<!-- HUD -->
+<div id="hud">
+  <!-- Crosshair -->
+  <div id="crosshair"><div class="ch-dot"></div></div>
+  <div id="hitmarker"></div>
+  <div id="damage-vignette"></div>
+
+  <!-- Top left -->
+  <div id="top-left">
+    <div id="coord-display">POS: 0.0 / 0.0</div>
+    <div id="fps-display">FPS: --</div>
+    <div id="kills-display">KILLS: 0</div>
+  </div>
+
+  <!-- Minimap -->
+  <div id="minimap">
+    ZONE
+    <div id="minimap-dot"></div>
+  </div>
+
+  <div id="health-bar-wrap">
+    <div class="sb-label">❤️</div>
+    <div id="health-bar-bg"><div id="health-bar"></div></div>
+  </div>
+
+  <div id="sprint-bar-wrap">
+    <div class="sb-label">⚡</div>
+    <div id="sprint-bar-bg"><div id="sprint-bar"></div></div>
+  </div>
+
+  <div id="ammo-hud">
+    
+    <div class="hud-value ammo" id="ammo-val">30<span class="ammo-reserve">/90</span></div>
+  </div>
+
+  <div id="weapon-name">AK-74M</div>
+  <div id="reload-text">[ RELOADING... ]</div>
+</div>
+
+<!-- Lock / Pause screen -->
+<div id="lockscreen">
+  <h1>MINEPLAY</h1>
+  <p>FIRST-PERSON ENGINE — v0.1</p>
+  <p style="font-size:9px;opacity:.3" id="ctrl-hint">
+    WASD · MOVE &nbsp;|&nbsp; MOUSE · LOOK &nbsp;|&nbsp; SHIFT · SPRINT
+    &nbsp;|&nbsp; SPACE · JUMP &nbsp;|&nbsp; C · CROUCH
+  </p>
+  <button id="start-btn">[ ENTER ZONE ]</button>
+</div>
+
+<!-- Mobile hint detection -->
+<script>
+  if (('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
+    const h = document.getElementById('ctrl-hint');
+    if (h) h.textContent = 'JOYSTICK · MOVE  |  DRAG RIGHT · LOOK  |  🔫 SHOOT  |  ↑ JUMP  |  ↓ CROUCH  |  ⚡ SPRINT';
+  }
+</script>
+
+<!-- Three.js (CDN) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<!--
+  Load order matters:
+  1. scene.js   — renderer, scene, camera, lights  (globals: renderer, scene, camera)
+  2. world.js   — terrain, buildings, trees, rocks (globals: ground, buildings)
+  3. player.js  — state, input, physics            (globals: player, keys, yaw, pitch, mouseLocked)
+  4. weapon.js  — model, shoot, bob                (globals: weaponGroup, shoot, updateWeaponBob)
+  5. game.js    — game loop, resize, start button  (entry point)
+-->
+<script src="js/scene.js?v=28"></script>
+<script src="js/world.js?v=28"></script>
+<script src="js/player.js?v=28"></script>
+<script src="js/weapon.js?v=28"></script>
+<script src="js/game.js?v=28"></script>
+<script src="js/mobile.js?v=28"></script>
+<script type="module" src="js/firebase-auth.js?v=28"></script>
+
+<div id="debug-toggle">DEBUG</div>
+<div id="debug-panel">
+<div>FPS: <span id="dbg-fps">0</span></div>
+<div>POS: <span id="dbg-pos">0,0,0</span></div>
+<div>HP: <span id="dbg-hp">100</span></div>
+<div>STAMINA: <span id="dbg-stamina">100</span></div>
+<div>AMMO: <span id="dbg-ammo">30/90</span></div>
+<div>ONLINE: <span id="dbg-online">0</span></div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded',()=>{
+ const t=document.getElementById('debug-toggle');
+ const p=document.getElementById('debug-panel');
+
+ if(t&&p)t.onclick=()=>p.classList.toggle('show');
+
+ const panel = document.getElementById('debug-panel');
+
+ function addLog(type,args){
+   if(!panel) return;
+   const line=document.createElement('div');
+   line.textContent='['+type+'] '+Array.from(args).map(v=>{
+      try{return typeof v==='object'?JSON.stringify(v):String(v);}
+      catch(e){return String(v);}
+   }).join(' ');
+   panel.appendChild(line);
+   panel.scrollTop=panel.scrollHeight;
+ }
+
+ const oldLog=console.log;
+ const oldWarn=console.warn;
+ const oldError=console.error;
+
+ console.log=(...args)=>{ oldLog(...args); addLog('LOG',args); };
+ console.warn=(...args)=>{ oldWarn(...args); addLog('WARN',args); };
+ console.error=(...args)=>{ oldError(...args); addLog('ERROR',args); };
+
+ window.addEventListener('error',e=>{
+   addLog('ERROR',[e.message]);
+ });
+
+ console.log('Debug console ready');
+});
+</script>
+
+</body>
+</html>
