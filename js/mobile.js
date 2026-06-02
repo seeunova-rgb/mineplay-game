@@ -268,4 +268,27 @@ function initMobileControls() {
     e.preventDefault();
     reload();
   }, { passive: false });
+
+  // ── Force button positions via JS (ป้องกัน CSS conflict) ────────
+  function positionButtons() {
+    const land = window.innerWidth > window.innerHeight;
+    const S = land
+      ? { shoot:[56,16,12], jump:[46,82,12], crouch:[42,16,78], sprint:[42,82,78], reload:[42,16,130] }
+      : { shoot:[64,16,16], jump:[52,90,16], crouch:[46,16,92],  sprint:[46,90,92],  reload:[46,16,150] };
+
+    const set = (id, [size, r, b]) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.style.cssText += `;position:fixed!important;right:${r}px!important;bottom:${b}px!important;width:${size}px!important;height:${size}px!important;`;
+    };
+    set('mc-btn-shoot',  S.shoot);
+    set('mc-btn-jump',   S.jump);
+    set('mc-btn-crouch', S.crouch);
+    set('mc-btn-sprint', S.sprint);
+    set('mc-btn-reload', S.reload);
+  }
+
+  positionButtons();
+  window.addEventListener('resize', positionButtons);
+  window.addEventListener('orientationchange', () => setTimeout(positionButtons, 100));
 }
