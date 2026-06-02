@@ -160,9 +160,5 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
   .hud-label { font-size: 8px; }
   #reload-text { bottom: 60px; right: 50%; transform: translateX(50%); }
 
-  .mc-btn-shoot  { right: 16px !important; bottom: 16px !important; }
-  .mc-btn-jump   { right: 96px !important; bottom: 16px !important; }
-  .mc-btn-crouch { right: 16px !important; bottom: 96px !important; }
-  .mc-btn-sprint { right: 96px !important; bottom: 96px !important; }
-  .mc-btn-reload { right: 16px !important; bottom: 176px !important; }
+  /* ปุ่มถูกจัดการโดย JS ใน mobile.js */
 }

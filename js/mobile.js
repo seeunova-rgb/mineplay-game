@@ -275,23 +275,41 @@ function initMobileControls() {
     const S = land
       ? { shoot:[56,16,12], jump:[46,82,12], crouch:[42,16,78], sprint:[42,82,78], reload:[42,16,130] }
       : { shoot:[64,16,16], jump:[52,90,16], crouch:[46,16,92],  sprint:[46,90,92],  reload:[46,16,150] };
+    const FS = land
+      ? ['20px','18px','15px','15px','18px']
+      : ['22px','20px','16px','16px','20px'];
 
-    const set = (id, [size, r, b]) => {
+    const ids = ['mc-btn-shoot','mc-btn-jump','mc-btn-crouch','mc-btn-sprint','mc-btn-reload'];
+    const keys2 = ['shoot','jump','crouch','sprint','reload'];
+
+    ids.forEach((id, i) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.style.setProperty('position', 'fixed', 'important');
-      el.style.setProperty('right',    r + 'px', 'important');
-      el.style.setProperty('bottom',   b + 'px', 'important');
-      el.style.setProperty('width',    size + 'px', 'important');
-      el.style.setProperty('height',   size + 'px', 'important');
-      el.style.setProperty('left',     'auto', 'important');
-      el.style.setProperty('top',      'auto', 'important');
-    };
-    set('mc-btn-shoot',  S.shoot);
-    set('mc-btn-jump',   S.jump);
-    set('mc-btn-crouch', S.crouch);
-    set('mc-btn-sprint', S.sprint);
-    set('mc-btn-reload', S.reload);
+      const [size, r, b] = S[keys2[i]];
+      el.style.cssText = [
+        'position:fixed',
+        `right:${r}px`,
+        `bottom:${b}px`,
+        'top:auto',
+        'left:auto',
+        `width:${size}px`,
+        `height:${size}px`,
+        `font-size:${FS[i]}`,
+        'pointer-events:auto',
+        'background:rgba(0,0,0,0.55)',
+        'border:1.5px solid rgba(0,255,136,0.5)',
+        'border-radius:50%',
+        'color:#00ff88',
+        'font-family:monospace',
+        'font-weight:700',
+        'cursor:pointer',
+        'display:flex',
+        'align-items:center',
+        'justify-content:center',
+        'z-index:55',
+        '-webkit-tap-highlight-color:transparent',
+      ].join(';');
+    });
   }
 
   positionButtons();
