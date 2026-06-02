@@ -152,7 +152,7 @@ function initMobileControls() {
 
     // ── Crouch: ขวาของ Shoot (ระดับเดียวกับ center shoot) ────────
     const crouchR = Math.round(groupR - SHOOT / 2 - GAP - BTN);
-    const crouchB = Math.round(groupB - BTN / 2 - SHOOT / 2);
+    const crouchB = Math.round(groupB - BTN / 2 - SHOOT * 0.8);
     applyBtn('mc-btn-crouch', BTN, crouchR, crouchB);
 
     // ── Jump: บน Crouch ตรงๆ (X เท่ากัน, Y สูงกว่า) ───────────
