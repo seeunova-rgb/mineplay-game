@@ -119,6 +119,15 @@ function initMobileControls() {
     .mc-btn-crouch { width: 46px; height: 46px; right: 106px; bottom: 24px;  font-size: 16px; }
     .mc-btn-sprint { width: 46px; height: 46px; right: 22px;  bottom: 128px; font-size: 16px; }
     .mc-btn-reload { width: 52px; height: 52px; right: 102px; bottom: 148px; font-size: 22px; }
+
+    /* Landscape: ชิดมุมขวาล่างแน่นขึ้น */
+    @media (orientation: landscape) {
+      .mc-btn-shoot  { right: 16px !important; bottom: 12px !important; width: 58px !important; height: 58px !important; }
+      .mc-btn-jump   { right: 86px !important; bottom: 12px !important; width: 46px !important; height: 46px !important; }
+      .mc-btn-crouch { right: 16px !important; bottom: 80px !important; width: 42px !important; height: 42px !important; }
+      .mc-btn-sprint { right: 86px !important; bottom: 80px !important; width: 42px !important; height: 42px !important; }
+      .mc-btn-reload { right: 16px !important; bottom: 134px !important; width: 46px !important; height: 46px !important; }
+    }
   `;
   document.head.appendChild(style);
 
