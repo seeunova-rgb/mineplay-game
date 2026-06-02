@@ -78,6 +78,7 @@
   4. weapon.js  — model, shoot, bob                (globals: weaponGroup, shoot, updateWeaponBob)
   5. game.js    — game loop, resize, start button  (entry point)
 -->
+<<<<<<< HEAD
 <script src="js/scene.js?v=26"></script>
 <script src="js/world.js?v=26"></script>
 <script src="js/player.js?v=26"></script>
@@ -88,6 +89,15 @@
 
 <div id="debug-toggle">CONSOLE</div>
 <div id="debug-panel"><div id="console-log"></div></div>
+=======
+<script src="js/scene.js?v=27"></script>
+<script src="js/world.js?v=27"></script>
+<script src="js/player.js?v=27"></script>
+<script src="js/weapon.js?v=27"></script>
+<script src="js/game.js?v=27"></script>
+<script src="js/mobile.js?v=27"></script>
+<script type="module" src="js/firebase-auth.js?v=27"></script>
+>>>>>>> 90cf24e (mineplay v0.0.27)
 
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
@@ -115,5 +125,23 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 
 
+<<<<<<< HEAD
+=======
+<script>
+window.addEventListener('DOMContentLoaded',()=>{
+ const el=document.getElementById('console-log');
+ if(!el) return;
+ const old=console.log;
+ console.log=function(...args){
+   try{
+     el.textContent += (el.textContent?'\n':'') + args.join(' ');
+   }catch(e){}
+   old.apply(console,args);
+ };
+ console.log('Console ready');
+});
+</script>
+
+>>>>>>> 90cf24e (mineplay v0.0.27)
 </body>
 </html>
