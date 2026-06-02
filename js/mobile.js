@@ -104,7 +104,7 @@ function initMobileControls() {
   // Sprint — ฝั่งซ้าย, toggle on/off
   const sprintBtn = document.createElement('button');
   sprintBtn.id = 'mc-btn-sprint';
-  sprintBtn.textContent = '⚡';
+  sprintBtn.textContent = '🏃';
   sprintBtn.style.cssText = `
     position: fixed; border-radius: 50%;
     background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
