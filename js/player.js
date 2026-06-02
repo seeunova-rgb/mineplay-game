@@ -57,11 +57,7 @@ function checkBuildingCollision(nx, nz) {
 }
 
 function getGroundHeight(x, z) {
-  return (
-    Math.sin(x * 0.08) * 0.6 +
-    Math.cos(z * 0.07) * 0.5 +
-    Math.sin(x * 0.03 + z * 0.04) * 1.5
-  );
+  return 0;
 }
 
 // ─── PHYSICS CONSTANTS ──────────────────────────────────────────

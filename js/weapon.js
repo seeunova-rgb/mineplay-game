@@ -58,8 +58,8 @@ function shoot() {
   shootRecoil = 1;
 
   // Vertical recoil on pitch
-  pitch += 0.025 * (Math.random() * 0.5 + 0.75);
-  pitch = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+  
+  
 
   // Update HUD ammo counter
   document.getElementById('ammo-val').innerHTML =
@@ -85,3 +85,31 @@ function showHitmarker() {
   hm.style.opacity = '1';
   setTimeout(() => hm.style.opacity = '0', 120);
 }
+
+// ─── RELOAD ─────────────────────────────────────────────────────
+let isReloading = false;
+
+function reload() {
+  if (isReloading) return;
+  if (player.reserve <= 0) return;
+  if (player.ammo === 30) return;
+  isReloading = true;
+
+  // แสดง RELOADING...
+  const ammoEl = document.getElementById('ammo-val');
+  ammoEl.innerHTML = `<span style="font-size:14px;letter-spacing:2px;opacity:0.7">RELOADING...</span>`;
+
+  setTimeout(() => {
+    const needed = 30 - player.ammo;
+    const fill = Math.min(needed, player.reserve);
+    player.ammo += fill;
+    player.reserve -= fill;
+    ammoEl.innerHTML = `${player.ammo}<span class="ammo-reserve">/${player.reserve}</span>`;
+    isReloading = false;
+  }, 1800);
+}
+
+// R key to reload
+document.addEventListener('keydown', e => {
+  if (e.code === 'KeyR') reload();
+});
