@@ -161,10 +161,10 @@ function initMobileControls() {
       crouchB + BTN + GAP
     );
 
-    // ── Reload: ล่างซ้ายของ Shoot ─────────────────────────────
+    // ── Reload: ซ้ายของ Shoot ระดับเดียวกับ Crouch ────────────
     applyBtn('mc-btn-reload', RLD,
       Math.round(groupR + SHOOT / 2 + GAP),
-      Math.round(groupB - SHOOT / 2 - GAP - RLD)
+      crouchB
     );
 
     // ── Sprint: ขวาของ joystick base ───────────────────────────
