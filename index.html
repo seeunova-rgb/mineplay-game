@@ -78,23 +78,42 @@
   4. weapon.js  — model, shoot, bob                (globals: weaponGroup, shoot, updateWeaponBob)
   5. game.js    — game loop, resize, start button  (entry point)
 -->
-<script src="js/scene.js?v=25"></script>
-<script src="js/world.js?v=25"></script>
-<script src="js/player.js?v=25"></script>
-<script src="js/weapon.js?v=25"></script>
-<script src="js/game.js?v=25"></script>
-<script src="js/mobile.js?v=25"></script>
-<script type="module" src="js/firebase-auth.js?v=25"></script>
+<script src="js/scene.js?v=26"></script>
+<script src="js/world.js?v=26"></script>
+<script src="js/player.js?v=26"></script>
+<script src="js/weapon.js?v=26"></script>
+<script src="js/game.js?v=26"></script>
+<script src="js/mobile.js?v=26"></script>
+<script type="module" src="js/firebase-auth.js?v=26"></script>
 
 <div id="debug-toggle">CONSOLE</div>
-<div id="debug-panel"><div id="console-log">Firebase: waiting...</div></div>
+<div id="debug-panel"><div id="console-log"></div></div>
+
 <script>
 document.addEventListener('DOMContentLoaded',()=>{
  const t=document.getElementById('debug-toggle');
  const p=document.getElementById('debug-panel');
+ const log=document.getElementById('console-log');
  if(t&&p)t.onclick=()=>p.classList.toggle('show');
+
+ function addLog(msg){
+   if(log){
+     const d=document.createElement('div');
+     d.textContent=String(msg);
+     log.appendChild(d);
+     p.scrollTop=p.scrollHeight;
+   }
+ }
+ window.gameConsole=addLog;
+ const oldLog=console.log;
+ console.log=function(...args){
+   oldLog.apply(console,args);
+   addLog(args.join(' '));
+ };
+ addLog('Console ready');
 });
 </script>
+
 
 </body>
 </html>
