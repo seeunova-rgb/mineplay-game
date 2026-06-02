@@ -38,7 +38,7 @@ function initMobileControls() {
     #mc-joystick-base {
       position: fixed;
       width: 110px; height: 110px;
-      left: 16px; bottom: 30px;
+      left: 10px; bottom: 20px;
       border-radius: 50%;
       background: rgba(0,255,136,0.07);
       border: 1.5px solid rgba(0,255,136,0.25);
