@@ -1,5 +1,8 @@
 /* ─── RESET ─────────────────────────────────────────────────────── */
 * { margin: 0; padding: 0; box-sizing: border-box; }
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body { padding-bottom: env(safe-area-inset-bottom); }
+}
 body { background: #000; overflow: hidden; font-family: 'Courier New', monospace; }
 #canvas { display: block; width: 100vw; height: 100vh; }
 
@@ -34,7 +37,7 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
 
 /* ─── BOTTOM BAR ────────────────────────────────────────────────── */
 #bottom-hud {
-  position: absolute; bottom: 28px; left: 0; right: 0;
+  position: absolute; bottom: max(28px, env(safe-area-inset-bottom, 0px)); left: 0; right: 0;
   display: flex; justify-content: space-between; align-items: flex-end;
   padding: 0 36px;
 }

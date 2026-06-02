@@ -103,17 +103,10 @@ function initMobileControls() {
   // shoot joystick = วงใหญ่ขวาล่าง
   // ปุ่มอื่นเรียงด้านบนและซ้ายของ shoot
   function placeButtons() {
-    const W = window.innerWidth, H = window.innerHeight;
+    // ใช้ CSS bottom ล้วนๆ อ้างอิง visual viewport จริง
+    // ROW1 = แถวล่าง, ROW2 = แถวบน (เหนือ ROW1)
+    const ROW1 = 88, ROW2 = 148;
 
-    // คำนวณจาก H จริง: ปุ่มแถวล่างอยู่ที่ H - 200px จากบน = bottom ที่ถูกต้อง
-    // HUD bar สูง ~80px อยู่ล่างสุด ปุ่มอยู่เหนือขึ้นมา
-    // วัด HUD จริงๆ เพื่อให้ปุ่มไม่ทับ
-    const hudEl = document.getElementById('bottom-hud');
-    const hudH = hudEl ? (H - hudEl.getBoundingClientRect().top + 8) : 90;
-    const ROW1 = Math.round(hudH);        // แถวล่าง: เหนือ HUD พอดี
-    const ROW2 = ROW1 + 52 + 8;          // แถวบน: เหนือแถวล่าง
-
-    // shoot joystick ขวาล่าง
     shootBase.style.cssText = `
       position: fixed; right: 16px; bottom: ${ROW1}px;
       width: 110px; height: 110px; border-radius: 50%;
@@ -122,11 +115,14 @@ function initMobileControls() {
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
+    // reload อยู่เหนือ shoot (ROW2)
+    // jump อยู่ซ้ายของ shoot แถวบน
+    // crouch/sprint อยู่ซ้ายของ shoot แถวล่าง
     const btnLayout = [
-      { id:'mc-btn-crouch', s:44, right: 134, bottom: ROW1 },
-      { id:'mc-btn-sprint', s:44, right: 186, bottom: ROW1 },
+      { id:'mc-btn-reload', s:44, right:  16, bottom: ROW2 },
       { id:'mc-btn-jump',   s:50, right: 134, bottom: ROW2 },
-      { id:'mc-btn-reload', s:44, right: 16,  bottom: ROW2 },
+      { id:'mc-btn-crouch', s:44, right: 192, bottom: ROW1 },
+      { id:'mc-btn-sprint', s:44, right: 134, bottom: ROW1 },
     ];
 
     btnLayout.forEach(({ id, s, right, bottom }) => {
