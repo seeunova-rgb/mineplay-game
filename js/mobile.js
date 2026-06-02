@@ -36,10 +36,9 @@ function initMobileControls() {
       touch-action: none;
     }
     #mc-joystick-base {
-      position: absolute;
+      position: fixed;
       width: 110px; height: 110px;
-      left: 50%; bottom: 30px;
-      transform: translateX(-50%);
+      left: 16px; bottom: 30px;
       border-radius: 50%;
       background: rgba(0,255,136,0.07);
       border: 1.5px solid rgba(0,255,136,0.25);
