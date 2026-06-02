@@ -203,32 +203,63 @@ function initMobileControls() {
     ['KeyW','KeyS','KeyA','KeyD'].forEach(k => keys[k] = false);
   }
 
-  // ── Look / camera drag ───────────────────────────────────────
-  let lookId = null, lx = 0, ly = 0;
-  const SENS = 0.005;
 
+  // ── Look + Shoot zone ────────────────────────────────────────
+  // แตะใน look zone = หันเฉยๆ
+  // แตะที่ปุ่มยิงแล้วลาก = ยิง+หัน (ลากออกนอกปุ่มก็ยังยิง)
+  const SENS = 0.005;
+  const activeTouches = new Map(); // id → { lx, ly, isShooting }
+  let shootTimer = null;
+
+  function startShooting() {
+    if (shootTimer) return;
+    shoot();
+    shootTimer = setInterval(() => shoot(), 110);
+  }
+  function stopShooting() {
+    clearInterval(shootTimer);
+    shootTimer = null;
+  }
+  function anyoneShooting() {
+    return [...activeTouches.values()].some(v => v.isShooting);
+  }
+
+  // ปุ่มยิง: แตะ = เริ่มยิง, ลาก = หันด้วย
+  const shootEl = document.getElementById('mc-btn-shoot');
+  shootEl.addEventListener('touchstart', e => {
+    e.preventDefault();
+    for (const t of e.changedTouches)
+      activeTouches.set(t.identifier, { lx: t.clientX, ly: t.clientY, isShooting: true });
+    startShooting();
+  }, { passive: false });
+
+  // look zone: แตะ = หันเฉยๆ ไม่ยิง
   lookZone.addEventListener('touchstart', e => {
     e.preventDefault();
-    const t = e.changedTouches[0];
-    lookId = t.identifier;
-    lx = t.clientX; ly = t.clientY;
+    for (const t of e.changedTouches)
+      if (!activeTouches.has(t.identifier))
+        activeTouches.set(t.identifier, { lx: t.clientX, ly: t.clientY, isShooting: false });
   }, { passive: false });
 
-  lookZone.addEventListener('touchmove', e => {
-    e.preventDefault();
-    const t = [...e.changedTouches].find(t => t.identifier === lookId);
-    if (!t) return;
-    yaw   -= (t.clientX - lx) * SENS;
-    pitch -= (t.clientY - ly) * SENS;
-    pitch  = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
-    lx = t.clientX; ly = t.clientY;
-  }, { passive: false });
+  // touchmove บน document เพื่อจับลากออกนอก zone/ปุ่ม
+  document.addEventListener('touchmove', e => {
+    for (const t of e.changedTouches) {
+      const entry = activeTouches.get(t.identifier);
+      if (!entry) continue;
+      yaw   -= (t.clientX - entry.lx) * SENS;
+      pitch -= (t.clientY - entry.ly) * SENS;
+      pitch  = Math.max(-Math.PI/2.2, Math.min(Math.PI/2.2, pitch));
+      entry.lx = t.clientX;
+      entry.ly = t.clientY;
+    }
+  }, { passive: true });
 
-  lookZone.addEventListener('touchend', e => {
-    e.preventDefault();
-    const t = [...e.changedTouches].find(t => t.identifier === lookId);
-    if (t) lookId = null;
-  }, { passive: false });
+  function endTouch(t) {
+    activeTouches.delete(t.identifier);
+    if (!anyoneShooting()) stopShooting();
+  }
+  document.addEventListener('touchend',    e => { for (const t of e.changedTouches) endTouch(t); }, { passive: true });
+  document.addEventListener('touchcancel', e => { for (const t of e.changedTouches) endTouch(t); }, { passive: true });
 
   // ── Action buttons ───────────────────────────────────────────
   function hold(id, code) {
@@ -241,21 +272,6 @@ function initMobileControls() {
   hold('mc-btn-crouch', 'KeyC');
   hold('mc-btn-sprint', 'ShiftLeft');
 
-  const shootEl = document.getElementById('mc-btn-shoot');
-  let shootTimer = null;
-  shootEl.addEventListener('touchstart', e => {
-    e.preventDefault();
-    shoot();
-    shootTimer = setInterval(() => shoot(), 110);
-  }, { passive: false });
-  shootEl.addEventListener('touchend', e => {
-    e.preventDefault();
-    clearInterval(shootTimer); shootTimer = null;
-  }, { passive: false });
-
   const reloadEl = document.getElementById('mc-btn-reload');
-  reloadEl.addEventListener('touchstart', e => {
-    e.preventDefault();
-    reload();
-  }, { passive: false });
+  reloadEl.addEventListener('touchstart', e => { e.preventDefault(); reload(); }, { passive: false });
 }
