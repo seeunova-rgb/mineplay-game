@@ -150,33 +150,30 @@ function initMobileControls() {
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // ── Jump: บนขวาของ Shoot ───────────────────────────────────
-    //    center = (groupR, groupB + SHOOT/2 + GAP + BTN/2)
-    applyBtn('mc-btn-jump', BTN,
-      Math.round(groupR - BTN / 2),                      // right
-      Math.round(groupB + SHOOT / 2 + GAP)               // bottom
-    );
-
     // ── Crouch: ล่างขวาของ Shoot ──────────────────────────────
-    //    center = (groupR + SHOOT/2 + GAP + BTN/2, groupB - SHOOT/2 - GAP - BTN/2)
-    applyBtn('mc-btn-crouch', BTN,
-      Math.round(groupR - SHOOT / 2 - GAP - BTN),        // right
-      Math.round(groupB - SHOOT / 2 - GAP - BTN)         // bottom
+    const crouchR = Math.round(groupR - SHOOT / 2 - GAP - BTN);
+    const crouchB = Math.round(groupB - SHOOT / 2 - GAP - BTN);
+    applyBtn('mc-btn-crouch', BTN, crouchR, crouchB);
+
+    // ── Jump: บน Crouch ตรงๆ (X เท่ากัน, Y สูงกว่า) ───────────
+    applyBtn('mc-btn-jump', BTN,
+      crouchR,                            // right — X เดียวกับ crouch
+      crouchB + BTN + GAP                 // bottom — สูงกว่า crouch
     );
 
     // ── Reload: ล่างซ้ายของ Shoot ─────────────────────────────
-    //    center = (groupR + SHOOT/2 + GAP + RLD/2, groupB - SHOOT/2 - GAP - RLD/2)
     applyBtn('mc-btn-reload', RLD,
-      Math.round(groupR + SHOOT / 2 + GAP),              // right
-      Math.round(groupB - SHOOT / 2 - GAP - RLD)         // bottom
+      Math.round(groupR + SHOOT / 2 + GAP),
+      Math.round(groupB - SHOOT / 2 - GAP - RLD)
     );
 
-    // ── Sprint: ล่างขวาของ joystick ฝั่งซ้าย ─────────────────
-    const joyR  = Math.min(Math.max(vmin(14), 72), 110); // joystick radius ≈ เท่า SHOOT
+    // ── Sprint: ขวาของ joystick base ───────────────────────────
+    // joystick base: left=10px, width=min(100px, 24vw)
+    const joyDiam = Math.min(100, Math.round(W * 0.24));
     const spSz  = Math.min(Math.max(vmin(8), 34), 50);
     sprintBtn.style.cssText = `
       position: fixed;
-      left: ${Math.round(PAD + joyR + GAP)}px;
+      left: ${Math.round(10 + joyDiam + GAP * 2)}px;
       bottom: ${Math.round(PAD + safeB)}px;
       width: ${spSz}px; height: ${spSz}px;
       font-size: ${Math.round(spSz * 0.42)}px;
