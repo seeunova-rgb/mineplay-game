@@ -105,14 +105,17 @@ function initMobileControls() {
   function placeButtons() {
     const W = window.innerWidth, H = window.innerHeight;
 
-    // ทุกอย่างกำหนด bottom ตรงๆ ไม่คำนวณต่อกัน
-    // HUD bar อยู่ที่ bottom ~0-80px
-    // แถวล่าง: bottom 90px  (เหนือ HUD bar)
-    // แถวบน:  bottom 148px  (90 + 50 + 8)
+    // คำนวณจาก H จริง: ปุ่มแถวล่างอยู่ที่ H - 200px จากบน = bottom ที่ถูกต้อง
+    // HUD bar สูง ~80px อยู่ล่างสุด ปุ่มอยู่เหนือขึ้นมา
+    // วัด HUD จริงๆ เพื่อให้ปุ่มไม่ทับ
+    const hudEl = document.getElementById('bottom-hud');
+    const hudH = hudEl ? (H - hudEl.getBoundingClientRect().top + 8) : 90;
+    const ROW1 = Math.round(hudH);        // แถวล่าง: เหนือ HUD พอดี
+    const ROW2 = ROW1 + 52 + 8;          // แถวบน: เหนือแถวล่าง
 
-    // shoot joystick: ขวาล่าง แถวล่าง
+    // shoot joystick ขวาล่าง
     shootBase.style.cssText = `
-      position: fixed; right: 16px; bottom: 90px;
+      position: fixed; right: 16px; bottom: ${ROW1}px;
       width: 110px; height: 110px; border-radius: 50%;
       background: rgba(255,80,80,0.08);
       border: 1.5px solid rgba(255,80,80,0.35);
@@ -120,12 +123,10 @@ function initMobileControls() {
     `;
 
     const btnLayout = [
-      // แถวล่าง: crouch ซ้ายของ shoot, sprint ซ้ายต่อไป
-      { id:'mc-btn-crouch', s:44, right: 134, bottom: 90  },
-      { id:'mc-btn-sprint', s:44, right: 186, bottom: 90  },
-      // แถวบน: jump เหนือ crouch, reload มุมขวาเหนือ shoot
-      { id:'mc-btn-jump',   s:50, right: 134, bottom: 148 },
-      { id:'mc-btn-reload', s:44, right: 16,  bottom: 210 },
+      { id:'mc-btn-crouch', s:44, right: 134, bottom: ROW1 },
+      { id:'mc-btn-sprint', s:44, right: 186, bottom: ROW1 },
+      { id:'mc-btn-jump',   s:50, right: 134, bottom: ROW2 },
+      { id:'mc-btn-reload', s:44, right: 16,  bottom: ROW2 },
     ];
 
     btnLayout.forEach(({ id, s, right, bottom }) => {
