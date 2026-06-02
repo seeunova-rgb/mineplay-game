@@ -125,35 +125,39 @@ function initMobileControls() {
     const SML     = Math.round(32 * scale);   // reload (เล็กกว่า)
     const PAD     = Math.round(12 * scale);
     const GAP     = Math.round(7  * scale);
-    const BOT     = PAD;
+    const BOT     = PAD + BIG + GAP;  // เว้นพื้นที่ด้านล่าง shoot สำหรับ crouch
 
-    // ── shoot joystick (ขวาล่าง) ────────────────────────────
+    // shoot อยู่กึ่งกลางหน้าจอแนวนอน ฝั่งขวา
+    // ใช้ left แทน right เพื่อ center ได้ง่าย
+    const H = window.innerHeight;
+    const shootLeft   = Math.round(W / 2 + W * 0.05);  // กึ่งกลางหน้าจอ + เยื้องขวานิดหน่อย
+    const shootBottom = Math.round(BOT);
+    const sCX_left    = shootLeft + SHOOT / 2;          // center X (จากซ้าย)
+    const sCY         = shootBottom + SHOOT / 2;        // center Y (จากล่าง)
+
+    // ── shoot joystick (กลางหน้าจอ ฝั่งขวา) ────────────────
     shootBase.style.cssText = `
-      position: fixed; right: ${PAD}px; bottom: ${BOT}px;
+      position: fixed; left: ${shootLeft}px; bottom: ${shootBottom}px;
       width: ${SHOOT}px; height: ${SHOOT}px; border-radius: 50%;
       background: rgba(255,80,80,0.08);
       border: 1.5px solid rgba(255,80,80,0.35);
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // Shoot อยู่กลาง (right: PAD, bottom: BOT)
-    // ใช้กึ่งกลาง shoot เป็น anchor
-    const shootMidX = PAD + SHOOT / 2;  // distance from right edge to center of shoot
+    // jump — บนขวาของ shoot (เหนือ shoot, align กลาง)
+    const jumpLeft   = Math.round(sCX_left - BIG / 2);
+    const jumpBottom = Math.round(shootBottom + SHOOT + GAP);
+    applyBtnLeft('mc-btn-jump', BIG, jumpLeft, jumpBottom);
 
-    // jump — บนขวาของ shoot (ชิดขอบขวา, เหนือ shoot)
-    const jumpRight  = PAD + (SHOOT/2) - (BIG/2);
-    const jumpBottom = BOT + SHOOT + GAP;
-    applyBtn('mc-btn-jump', BIG, jumpRight, jumpBottom);
-
-    // crouch — ล่างขวาของ shoot (ชิดขอบขวา, ใต้ shoot)
-    const crouchRight  = PAD + (SHOOT/2) - (BIG/2);
-    const crouchBottom = BOT - BIG - GAP;
-    applyBtn('mc-btn-crouch', BIG, crouchRight, crouchBottom);
+    // crouch — ล่างขวาของ shoot (ใต้ shoot, align กลาง)
+    const crouchLeft   = Math.round(sCX_left - BIG / 2);
+    const crouchBottom = Math.round(shootBottom - BIG - GAP);
+    applyBtnLeft('mc-btn-crouch', BIG, crouchLeft, Math.max(PAD, crouchBottom));
 
     // reload — ซ้ายล่างของ shoot
-    const reloadRight  = PAD + SHOOT + GAP;
-    const reloadBottom = BOT;
-    applyBtn('mc-btn-reload', SML, reloadRight, reloadBottom);
+    const reloadLeft   = Math.round(shootLeft - SML - GAP);
+    const reloadBottom = Math.round(shootBottom);
+    applyBtnLeft('mc-btn-reload', SML, reloadLeft, reloadBottom);
 
     // ── sprint toggle — ขวาล่างของ joystick (ฝั่งซ้าย) ─────
     const joySize    = Math.min(100, Math.round(W * 0.24));
@@ -177,6 +181,21 @@ function initMobileControls() {
     el.style.cssText = `
       position: fixed; right: ${Math.round(right)}px; bottom: ${Math.round(bottom)}px;
       left: auto; top: auto;
+      width: ${size}px; height: ${size}px; font-size: ${Math.round(size*0.4)}px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
+      color: #00ff88; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; z-index: 62; touch-action: none;
+      -webkit-tap-highlight-color: transparent; cursor: pointer;
+    `;
+  }
+
+  function applyBtnLeft(id, size, left, bottom) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.cssText = `
+      position: fixed; left: ${Math.round(left)}px; bottom: ${Math.round(bottom)}px;
+      right: auto; top: auto;
       width: ${size}px; height: ${size}px; font-size: ${Math.round(size*0.4)}px;
       border-radius: 50%;
       background: rgba(0,0,0,0.6); border: 1.5px solid rgba(0,255,136,0.5);
