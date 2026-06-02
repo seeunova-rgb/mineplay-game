@@ -150,15 +150,15 @@ function initMobileControls() {
       z-index: 61; touch-action: none; cursor: pointer;
     `;
 
-    // ── Crouch: ล่างขวาของ Shoot ──────────────────────────────
+    // ── Crouch: ขวาของ Shoot (ระดับเดียวกับ center shoot) ────────
     const crouchR = Math.round(groupR - SHOOT / 2 - GAP - BTN);
-    const crouchB = Math.round(groupB - SHOOT / 2 - GAP - BTN);
+    const crouchB = Math.round(groupB - BTN / 2);
     applyBtn('mc-btn-crouch', BTN, crouchR, crouchB);
 
     // ── Jump: บน Crouch ตรงๆ (X เท่ากัน, Y สูงกว่า) ───────────
     applyBtn('mc-btn-jump', BTN,
-      crouchR,                            // right — X เดียวกับ crouch
-      crouchB + BTN + GAP                 // bottom — สูงกว่า crouch
+      crouchR,
+      crouchB + BTN + GAP
     );
 
     // ── Reload: ล่างซ้ายของ Shoot ─────────────────────────────
