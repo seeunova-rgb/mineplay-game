@@ -28,7 +28,7 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
   border-radius: 50%;
 }
 
-/* ─── BOTTOM BAR ────────────────────────────────────────────────── */
+/* ─── BOTTOM BAR (Desktop) ──────────────────────────────────────── */
 #bottom-hud {
   position: absolute; bottom: 28px; left: 0; right: 0;
   display: flex; justify-content: space-between; align-items: flex-end;
@@ -41,6 +41,21 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
 .hud-value.ammo  { color: #c8ff00; }
 .hud-value.kills { color: #44aaff; }
 .ammo-reserve { font-size: 14px; opacity: 0.5; margin-left: 4px; }
+
+/* ─── MOBILE: HUD กึ่งกลางล่าง ──────────────────────────────────── */
+@media (pointer: coarse) {
+  #bottom-hud {
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    bottom: 18px;
+    padding: 0;
+    justify-content: center;
+    gap: 32px;
+  }
+  .hud-value { font-size: 22px; }
+  .hud-label { font-size: 8px; }
+}
 
 /* ─── TOP-LEFT INFO ──────────────────────────────────────────────── */
 #top-left {
@@ -141,3 +156,11 @@ body { background: #000; overflow: hidden; font-family: 'Courier New', monospace
   transition: background .2s, color .2s;
 }
 #lockscreen button:hover { background: #c8ff00; color: #000; }
+
+/* ─── MOBILE: ปุ่มชิดมุมขวาล่าง ────────────────────────────────── */
+@media (pointer: coarse) {
+  .mc-btn-shoot  { right: 16px !important; bottom: 16px !important; }
+  .mc-btn-jump   { right: 96px !important; bottom: 16px !important; }
+  .mc-btn-crouch { right: 16px !important; bottom: 96px !important; }
+  .mc-btn-sprint { right: 96px !important; bottom: 96px !important; }
+}

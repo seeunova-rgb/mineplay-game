@@ -1,18 +1,6 @@
 // ─── TERRAIN ────────────────────────────────────────────────────
-const groundGeo = new THREE.PlaneGeometry(300, 300, 60, 60);
+const groundGeo = new THREE.PlaneGeometry(300, 300, 1, 1);
 const groundMat = new THREE.MeshLambertMaterial({ color: 0x1a2010 });
-
-// Subtle height variation
-const pos = groundGeo.attributes.position;
-for (let i = 0; i < pos.count; i++) {
-  const x = pos.getX(i), z = pos.getZ(i);
-  pos.setY(i,
-    Math.sin(x * 0.08) * 0.6 +
-    Math.cos(z * 0.07) * 0.5 +
-    Math.sin(x * 0.03 + z * 0.04) * 1.5
-  );
-}
-groundGeo.computeVertexNormals();
 
 const ground = new THREE.Mesh(groundGeo, groundMat);
 ground.rotation.x = -Math.PI / 2;
